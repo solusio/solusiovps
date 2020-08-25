@@ -1,0 +1,8 @@
+{
+    "name": "solusiovps",
+    "description": "SolusIO WHMCS VPS Provisioning module",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "@novnc/novnc": "^1.2.0"
+    }
+}
