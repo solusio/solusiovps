@@ -63,6 +63,6 @@ Create a configurable option named `Operating System`. Add options with the foll
 
 #### SSH Key
 
-The module gives the ability to specify an SSH key on on ordering of a product. This is done in the form a product custom field.
+The module gives the ability to specify an SSH key on ordering of a product. This is done in the form a product custom field.
 
 Create a custom field named `SSH Key` and type `Text Area`.
