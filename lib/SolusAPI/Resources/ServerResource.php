@@ -1,0 +1,91 @@
+<?php
+
+// Copyright 2020. Plesk International GmbH.
+
+namespace WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources;
+
+/**
+ * Class ServerResource
+ * @package WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources
+ */
+class ServerResource extends ApiResource
+{
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function create(array $data): array
+    {
+        return $this->processResponse($this->connector->post("servers", [
+            'json' => $data
+        ]));
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function get(int $id): array
+    {
+        return $this->processResponse($this->connector->get("servers/{$id}"));
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function delete(int $id): array
+    {
+        return $this->processResponse($this->connector->delete("servers/{$id}"));
+    }
+
+    public function start(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/start"));
+    }
+
+    public function stop(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/stop"));
+    }
+
+    public function restart(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/restart"));
+    }
+
+    public function reinstall(int $serverId, int $osId): array
+    {
+        $options = [];
+
+        if ($osId > 0) {
+            $options = [
+                'json' => [
+                    'os' => $osId,
+                ],
+            ];
+        }
+
+        return $this->processResponse($this->connector->post("servers/{$serverId}/reinstall", $options));
+    }
+
+    public function suspend(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/suspend"));
+    }
+
+    public function resume(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/resume"));
+    }
+
+    public function vncUp(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/vnc_up"));
+    }
+
+    public function resetPassword(int $id): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/reset_password"));
+    }
+}

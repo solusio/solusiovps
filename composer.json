@@ -1,0 +1,30 @@
+{
+  "name": "whmcs/solusiovps",
+  "description": "SolusIO WHMCS VPS Provisioning module",
+  "keywords": [
+    "whmcs",
+    "provisioning module",
+    "SOLUS IO"
+  ],
+  "homepage": "https://github.com/solusio/",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Plesk development team",
+      "email": "rnd@plesk.com",
+      "homepage": "http://www.plesk.com/",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "files": [
+      "lib/module.php"
+    ],
+    "psr-4": {
+      "WHMCS\\Module\\Server\\SolusIoVps\\": "lib/"
+    }
+  },
+  "require": {
+    "ext-json": "*"
+  }
+}
