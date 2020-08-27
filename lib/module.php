@@ -211,15 +211,21 @@ function solusiovps_CreateAccount(array $params): string
             $osId = (int) Arr::get($params, 'configoption2');
         }
 
+        $serviceId = (int) $params['serviceid'];
+        $name = empty($params['domain']) ? "vps-{$serviceId}" : $params['domain'];
+
         $serverData = [
-            'name' => $params['domain'],
-            'fqdns' => [
-                $params['domain'],
-            ],
+            'name' => $name,
             'plan_id' => (int) Arr::get($params, 'configoption1'),
             'location_id' => $locationId,
             'os' => $osId,
         ];
+
+        if (!empty($params['domain'])) {
+            $serverData['fqdns'] = [
+                $params['domain'],
+            ];
+        }
 
         $userData = Arr::get($params, 'configoption5');
 
@@ -267,7 +273,7 @@ function solusiovps_CreateAccount(array $params): string
         $payload = Arr::get($response, 'data', []);
 
         SolusServer::create([
-            'service_id' => (int) Arr::get($params, 'serviceid'),
+            'service_id' => $serviceId,
             'server_id' => (int) Arr::get($response, 'data.id'),
             'payload' => json_encode($payload),
         ]);
