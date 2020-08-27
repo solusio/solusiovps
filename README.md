@@ -27,6 +27,8 @@ Open the Account page in the SolusIO user-area to generate an API Token.
 
 Configure SolusIO API access by adding a new server in WHMCS. Required fields are `Hostname` and `Password`.
 
+`Hostname` must contain URL without https, e.g. "www.solus.io"
+
 SolusIO API Token should be saved in the password field.
 
 ![Server](./docs/server.png)
