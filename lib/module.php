@@ -16,13 +16,11 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\SshKeyResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\UserResource;
 use WHMCS\Module\Server\SolusIoVps\Database\Migrations\Servers;
 use WHMCS\Module\Server\SolusIoVps\Database\Migrations\SshKeys;
-use WHMCS\Module\Server\SolusIoVps\Database\Migrations\Users;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\Hosting;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\ProductConfigOption;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\Server;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusSshKey;
-use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusUser;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
@@ -33,7 +31,6 @@ if (!defined('WHMCS')) {
 // Run the migrations
 Servers::run();
 SshKeys::run();
-Users::run();
 
 // Load translations
 Language::load();
@@ -181,22 +178,25 @@ function solusiovps_CreateAccount(array $params): string
     }
 
     try {
-        $whmcsUserId = (int) Arr::get($params, 'userid');
-        $solusUserId = SolusUser::getSolusUserId($whmcsUserId);
+        $whmcsUserId = (int) $params['userid'];
         $userResource = new UserResource(Connector::create($params));
+        $solusUser = $userResource->getUserByEmail($params['clientsdetails']['email']);
 
-        if ($solusUserId === 0) {
+        if (empty($solusUser)) {
             $solusUserId = $userResource->create([
-                'password' => Arr::get($params, 'password'),
-                'email' => Arr::get($params, 'clientsdetails.email'),
+                'password' => $params['password'],
+                'email' => $params['clientsdetails']['email'],
                 'billing_user_id' => (string) $whmcsUserId,
                 'status' => 'active',
             ]);
+        } else {
+            $solusUserId = $solusUser['id'];
 
-            SolusUser::create([
-                'whmcs_user_id' => $whmcsUserId,
-                'solus_user_id' => $solusUserId,
-            ]);
+            if ((int) $solusUser['billing_user_id'] !== $whmcsUserId) {
+                $solusUser['billing_user_id'] = (string) $whmcsUserId;
+
+                $userResource->updateUser($solusUserId, $solusUser);
+            }
         }
 
         $locationId = (int) $params['configoptions'][ProductConfigOption::LOCATION];

@@ -36,4 +36,33 @@ class UserResource extends ApiResource
 
         return $response['data']['access_token'];
     }
+
+    /**
+     * @param string $email
+     * @return array Empty if user does not exist
+     */
+    public function getUserByEmail(string $email): array
+    {
+        $response = $this->processResponse($this->connector->get("users", [
+            'query' => [
+                'filter' => [
+                    'search' => $email,
+                ],
+            ],
+        ]));
+
+        return $response['data'][0] ?? [];
+    }
+
+    /**
+     * @param int $userId
+     * @param array $data
+     * @return void
+     */
+    public function updateUser(int $userId, array $data): void
+    {
+        $this->processResponse($this->connector->put("users/{$userId}", [
+            'json' => $data,
+        ]));
+    }
 }
