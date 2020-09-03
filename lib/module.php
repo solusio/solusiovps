@@ -233,7 +233,7 @@ function solusiovps_CreateAccount(array $params): string
             $serverData['user_data'] = Strings::convertToUserData($userData);
         }
 
-        $sshKey = Strings::convertToSshKey($params['customfields'][SolusSshKey::CUSTOM_FIELD_SSH_KEY]) ?? '';
+        $sshKey = Strings::convertToSshKey($params['customfields'][SolusSshKey::CUSTOM_FIELD_SSH_KEY] ?? '');
 
         if ($sshKey !== '') {
             $sshKeyId = SolusSshKey::getIdByKey($sshKey);
