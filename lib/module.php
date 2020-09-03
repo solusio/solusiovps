@@ -22,6 +22,7 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\Server;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusSshKey;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
 if (!defined('WHMCS')) {
@@ -445,10 +446,12 @@ function solusiovps_AdminCustomButtonArray(array $params): array
 {
     global $_LANG;
 
+    $vncUrl = Config::getSystemUrl() . 'modules/servers/solusiovps/pages/vnc.php?serviceId=' . $params['serviceid'];
+
     return [
         $_LANG['solusiovps_button_restart'] => 'restart',
         $_LANG['solusiovps_button_vnc'] => [
-            'href' => "javascript:window.open('/modules/servers/solusiovps/pages/vnc.php?serviceId={$params['serviceid']}', '', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=800,height=450');",
+            'href' => "javascript:window.open('{$vncUrl}', '', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=800,height=450');",
         ],
     ];
 }
