@@ -163,7 +163,7 @@ const statusUpdate = status => {
     $('#btn-start-server').prop('disabled', (status !== 'stopped'));
     $('#btn-stop-server').prop('disabled', (status !== 'started'));
     $('#btn-restart-server').prop('disabled', (status !== 'started'));
-    $('#btn-reinstall-server').prop('disabled', (status === 'processing'));
+    $('#btn-reinstall-server').prop('disabled', ((status !== 'stopped') && (status !== 'started')));
     $('#btn-vnc').prop('disabled', (status !== 'started'));
     $('#btn-reset-pw').prop('disabled', (status !== 'started'));
 }
