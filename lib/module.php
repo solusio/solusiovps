@@ -216,8 +216,8 @@ function solusiovps_CreateAccount(array $params): string
 
         $serverData = [
             'name' => $name,
-            'plan_id' => (int) Arr::get($params, 'configoption1'),
-            'location_id' => $locationId,
+            'plan' => (int) Arr::get($params, 'configoption1'),
+            'location' => $locationId,
             'os' => $osId,
         ];
 
