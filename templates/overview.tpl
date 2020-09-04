@@ -163,14 +163,14 @@ const statusUpdate = status => {
     $('#btn-start-server').prop('disabled', (status !== 'stopped'));
     $('#btn-stop-server').prop('disabled', (status !== 'started'));
     $('#btn-restart-server').prop('disabled', (status !== 'started'));
-    $('#btn-reinstall-server').prop('disabled', (status === 'processing'));
+    $('#btn-reinstall-server').prop('disabled', ((status !== 'stopped') && (status !== 'started')));
     $('#btn-vnc').prop('disabled', (status !== 'started'));
     $('#btn-reset-pw').prop('disabled', (status !== 'started'));
 }
 
 const checkStatus = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/status.php',
+        url: 'modules/servers/solusiovps/pages/status.php',
         data: {
             serviceId: {$serviceid}
         }
@@ -185,7 +185,7 @@ const checkStatus = () => {
 
 const startServer = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/start.php',
+        url: 'modules/servers/solusiovps/pages/start.php',
         data: {
             serviceId: {$serviceid}
         }
@@ -194,7 +194,7 @@ const startServer = () => {
 
 const stopServer = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/stop.php',
+        url: 'modules/servers/solusiovps/pages/stop.php',
         data: {
             serviceId: {$serviceid}
         }
@@ -203,7 +203,7 @@ const stopServer = () => {
 
 const restartServer = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/restart.php',
+        url: 'modules/servers/solusiovps/pages/restart.php',
         data: {
             serviceId: {$serviceid}
         }
@@ -237,7 +237,7 @@ const reinstallServer = () => {
 
 const reinstallServerContinue = osId => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/reinstall.php',
+        url: 'modules/servers/solusiovps/pages/reinstall.php',
         data: {
             serviceId: {$serviceid},
             osId: osId
@@ -262,7 +262,7 @@ const openVncDialog = () => {
     const height = 450;
     const top = (screen.height / 2) - (height / 2);
     const left = (screen.width / 2) - (width / 2);
-    const url = '/modules/servers/solusiovps/pages/vnc.php?serviceId={$serviceid}';
+    const url = 'modules/servers/solusiovps/pages/vnc.php?serviceId={$serviceid}';
     const features = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=" + width + ",height=" + height + ",top=" + top + ",left=" + left;
 
     window.open(url, '', features);
@@ -270,7 +270,7 @@ const openVncDialog = () => {
 
 const resetPassword = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/reset-password.php',
+        url: 'modules/servers/solusiovps/pages/reset-password.php',
         data: {
             serviceId: {$serviceid}
         },
@@ -282,7 +282,7 @@ const resetPassword = () => {
 
 const getBackups = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/get-backups.php',
+        url: 'modules/servers/solusiovps/pages/get-backups.php',
         data: {
             serviceId: {$serviceid}
         },
@@ -315,7 +315,7 @@ const getBackups = () => {
 
 const createBackup = () => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/create-backup.php',
+        url: 'modules/servers/solusiovps/pages/create-backup.php',
         data: {
             serviceId: {$serviceid}
         }
@@ -324,7 +324,7 @@ const createBackup = () => {
 
 const restoreBackup = backupId => {
     $.get({
-        url: '/modules/servers/solusiovps/pages/restore-backup.php',
+        url: 'modules/servers/solusiovps/pages/restore-backup.php',
         data: {
             serviceId: {$serviceid},
             backupId: backupId

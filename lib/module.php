@@ -22,6 +22,7 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\Server;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusSshKey;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
 if (!defined('WHMCS')) {
@@ -131,7 +132,9 @@ function solusiovps_OsImageLoader(array $params): array
         $result = [];
 
         foreach (DataWrapper::wrap($osImageResource->list()) as $item) {
-            $result[Arr::get($item, 'id')] = Arr::get($item, 'icon.name');
+            foreach ($item['versions'] as $version) {
+                $result[Arr::get($version, 'id')] = Arr::get($item, 'icon.name') . ' ' . Arr::get($version, 'version');
+            }
         }
 
         return $result;
@@ -216,8 +219,8 @@ function solusiovps_CreateAccount(array $params): string
 
         $serverData = [
             'name' => $name,
-            'plan_id' => (int) Arr::get($params, 'configoption1'),
-            'location_id' => $locationId,
+            'plan' => (int) Arr::get($params, 'configoption1'),
+            'location' => $locationId,
             'os' => $osId,
         ];
 
@@ -233,7 +236,7 @@ function solusiovps_CreateAccount(array $params): string
             $serverData['user_data'] = Strings::convertToUserData($userData);
         }
 
-        $sshKey = Strings::convertToSshKey($params['customfields'][SolusSshKey::CUSTOM_FIELD_SSH_KEY]) ?? '';
+        $sshKey = Strings::convertToSshKey($params['customfields'][SolusSshKey::CUSTOM_FIELD_SSH_KEY] ?? '');
 
         if ($sshKey !== '') {
             $sshKeyId = SolusSshKey::getIdByKey($sshKey);
@@ -445,10 +448,12 @@ function solusiovps_AdminCustomButtonArray(array $params): array
 {
     global $_LANG;
 
+    $vncUrl = Config::getSystemUrl() . 'modules/servers/solusiovps/pages/vnc.php?serviceId=' . $params['serviceid'];
+
     return [
         $_LANG['solusiovps_button_restart'] => 'restart',
         $_LANG['solusiovps_button_vnc'] => [
-            'href' => "javascript:window.open('/modules/servers/solusiovps/pages/vnc.php?serviceId={$params['serviceid']}', '', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=800,height=450');",
+            'href' => "javascript:window.open('{$vncUrl}', '', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=800,height=450');",
         ],
     ];
 }

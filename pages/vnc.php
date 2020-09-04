@@ -49,7 +49,7 @@ $url = 'wss://' . $serverParams['serverhostname'] . '/vnc?url=' . $response['url
         }
     </style>
     <script type="module" crossorigin="anonymous">
-        import RFB from '/modules/servers/solusiovps/node_modules/@novnc/novnc/core/rfb.js';
+        import RFB from '../node_modules/@novnc/novnc/core/rfb.js';
 
         const url = <?= json_encode($url) ?>;
         const password = <?= json_encode($password) ?>;
