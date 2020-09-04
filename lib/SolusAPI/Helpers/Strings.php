@@ -28,4 +28,26 @@ class Strings
 
         return trim($str);
     }
+
+    /**
+     * Generate SolusIO-compatible password
+     *
+     * @return string
+     */
+    public static function generatePassword(): string
+    {
+        $patterns = [
+            '1234567890',
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            'abcdefghijklmnopqrstuvwxyz',
+        ];
+
+        $password = '';
+
+        foreach ($patterns as $pattern) {
+            $password .= substr(str_shuffle($pattern), 0, 5);
+        }
+
+        return str_shuffle($password);
+    }
 }

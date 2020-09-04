@@ -3,6 +3,7 @@
 // Copyright 2020. Plesk International GmbH.
 
 use \GuzzleHttp\Exception\RequestException;
+use WHMCS\Database\Capsule as DB;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\DataWrapper;
@@ -181,6 +182,12 @@ function solusiovps_CreateAccount(array $params): string
     }
 
     try {
+        $params['password'] = Strings::generatePassword();
+        $results = localAPI('EncryptPassword', ['password2' => $params['password']]);
+        $encPassword = $results['password'];
+
+        DB::table('tblhosting')->where('id', $params['serviceid'])->update(['password' => $encPassword]);
+
         $whmcsUserId = (int) $params['userid'];
         $userResource = new UserResource(Connector::create($params));
         $solusUser = $userResource->getUserByEmail($params['clientsdetails']['email']);
@@ -222,6 +229,7 @@ function solusiovps_CreateAccount(array $params): string
             'plan' => (int) Arr::get($params, 'configoption1'),
             'location' => $locationId,
             'os' => $osId,
+            'password' => $params['password'],
         ];
 
         if (!empty($params['domain'])) {
