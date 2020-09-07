@@ -283,6 +283,20 @@ function solusiovps_CreateAccount(array $params): string
         $response = $serverResource->create($serverData);
         $payload = Arr::get($response, 'data', []);
 
+        if (empty($params['domain'])) {
+            DB::table('tblhosting')->where('id', $params['serviceid'])->update(['domain' => $payload['name']]);
+        }
+
+        DB::table('tblhosting')->where('id', $params['serviceid'])->update(['dedicatedip' => $payload['ips'][0]['ip']]);
+
+        $assignedIps = [];
+
+        foreach ($payload['ips'] as $item) {
+            $assignedIps[] = $item['ip'];
+        }
+
+        DB::table('tblhosting')->where('id', $params['serviceid'])->update(['assignedips' => implode(',', $assignedIps)]);
+
         SolusServer::create([
             'service_id' => $serviceId,
             'server_id' => (int) Arr::get($response, 'data.id'),
