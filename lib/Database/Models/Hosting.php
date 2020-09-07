@@ -21,4 +21,14 @@ class Hosting
     {
         return DB::table(self::TABLE)->where(['id' => $id])->first();
     }
+
+    /**
+     * @param int $id
+     * @param array $data
+     * @return void
+     */
+    public static function updateByServiceId(int $id, array $data): void
+    {
+        DB::table('tblhosting')->where('id', $id)->update($data);
+    }
 }

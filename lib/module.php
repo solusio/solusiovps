@@ -3,7 +3,6 @@
 // Copyright 2020. Plesk International GmbH.
 
 use \GuzzleHttp\Exception\RequestException;
-use WHMCS\Database\Capsule as DB;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\DataWrapper;
@@ -24,6 +23,7 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusSshKey;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Crypt;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
 if (!defined('WHMCS')) {
@@ -183,10 +183,9 @@ function solusiovps_CreateAccount(array $params): string
 
     try {
         $params['password'] = Strings::generatePassword();
-        $results = localAPI('EncryptPassword', ['password2' => $params['password']]);
-        $encPassword = $results['password'];
+        $encPassword = Crypt::encrypt($params['password']);
 
-        DB::table('tblhosting')->where('id', $params['serviceid'])->update(['password' => $encPassword]);
+        Hosting::updateByServiceId($params['serviceid'], ['password' => $encPassword]);
 
         $whmcsUserId = (int) $params['userid'];
         $userResource = new UserResource(Connector::create($params));
@@ -284,10 +283,8 @@ function solusiovps_CreateAccount(array $params): string
         $payload = Arr::get($response, 'data', []);
 
         if (empty($params['domain'])) {
-            DB::table('tblhosting')->where('id', $params['serviceid'])->update(['domain' => $payload['name']]);
+            Hosting::updateByServiceId($params['serviceid'], ['domain' => $payload['name']]);
         }
-
-        DB::table('tblhosting')->where('id', $params['serviceid'])->update(['dedicatedip' => $payload['ips'][0]['ip']]);
 
         $assignedIps = [];
 
@@ -295,7 +292,10 @@ function solusiovps_CreateAccount(array $params): string
             $assignedIps[] = $item['ip'];
         }
 
-        DB::table('tblhosting')->where('id', $params['serviceid'])->update(['assignedips' => implode(',', $assignedIps)]);
+        Hosting::updateByServiceId($params['serviceid'], [
+            'dedicatedip' => $payload['ips'][0]['ip'],
+            'assignedips' => implode(',', $assignedIps),
+        ]);
 
         SolusServer::create([
             'service_id' => $serviceId,
