@@ -23,6 +23,7 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusSshKey;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Crypt;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
 if (!defined('WHMCS')) {
@@ -181,6 +182,11 @@ function solusiovps_CreateAccount(array $params): string
     }
 
     try {
+        $params['password'] = Strings::generatePassword();
+        $encPassword = Crypt::encrypt($params['password']);
+
+        Hosting::updateByServiceId($params['serviceid'], ['password' => $encPassword]);
+
         $whmcsUserId = (int) $params['userid'];
         $userResource = new UserResource(Connector::create($params));
         $solusUser = $userResource->getUserByEmail($params['clientsdetails']['email']);
@@ -222,6 +228,7 @@ function solusiovps_CreateAccount(array $params): string
             'plan' => (int) Arr::get($params, 'configoption1'),
             'location' => $locationId,
             'os' => $osId,
+            'password' => $params['password'],
         ];
 
         if (!empty($params['domain'])) {
@@ -274,6 +281,21 @@ function solusiovps_CreateAccount(array $params): string
         $serverResource = new ServerResource(Connector::create($params, $userApiToken));
         $response = $serverResource->create($serverData);
         $payload = Arr::get($response, 'data', []);
+
+        if (empty($params['domain'])) {
+            Hosting::updateByServiceId($params['serviceid'], ['domain' => $payload['name']]);
+        }
+
+        $assignedIps = [];
+
+        foreach ($payload['ips'] as $item) {
+            $assignedIps[] = $item['ip'];
+        }
+
+        Hosting::updateByServiceId($params['serviceid'], [
+            'dedicatedip' => $payload['ips'][0]['ip'],
+            'assignedips' => implode(',', $assignedIps),
+        ]);
 
         SolusServer::create([
             'service_id' => $serviceId,
