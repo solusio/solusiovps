@@ -134,7 +134,7 @@ function solusiovps_OsImageLoader(array $params): array
 
         foreach (DataWrapper::wrap($osImageResource->list()) as $item) {
             foreach ($item['versions'] as $version) {
-                $result[Arr::get($version, 'id')] = Arr::get($item, 'icon.name') . ' ' . Arr::get($version, 'version');
+                $result[Arr::get($version, 'id')] = Arr::get($item, 'icon.name', Arr::get($item, 'name')) . ' ' . Arr::get($version, 'version');
             }
         }
 
