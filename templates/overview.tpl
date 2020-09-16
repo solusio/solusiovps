@@ -49,6 +49,9 @@
                     <button onclick="resetPassword();" id="btn-reset-pw" class="btn btn-info">
                         {$LANG.solusiovps_button_reset_pw}
                     </button>
+                    <button onclick="changeHostname();" id="btn-change-hostname" class="btn btn-info">
+                        {$LANG.solusiovps_button_change_hostname}
+                    </button>
                 </div>
             </div>
         </div>
@@ -159,6 +162,8 @@
 const operatingSystems = {$data['operating_systems']};
 const defaultOsId = {$data['default_os_id']};
 
+let domain = '{$data['domain']}';
+
 const statusUpdate = status => {
     $('#btn-start-server').prop('disabled', (status !== 'stopped'));
     $('#btn-stop-server').prop('disabled', (status !== 'started'));
@@ -166,6 +171,7 @@ const statusUpdate = status => {
     $('#btn-reinstall-server').prop('disabled', ((status !== 'stopped') && (status !== 'started')));
     $('#btn-vnc').prop('disabled', (status !== 'started'));
     $('#btn-reset-pw').prop('disabled', (status !== 'started'));
+    $('#btn-change-hostname').prop('disabled', ((status !== 'stopped') && (status !== 'started')));
 }
 
 const checkStatus = () => {
@@ -276,6 +282,27 @@ const resetPassword = () => {
         },
         success: function () {
             alert('{$LANG.solusiovps_password_reset_success}');
+        }
+    });
+}
+
+const changeHostname = () => {
+    const hostname = prompt('{$LANG.solusiovps_new_hostname}', domain);
+
+    if ((hostname === null) || (hostname === '') || (hostname === domain)) {
+        return;
+    }
+
+    $.get({
+        url: 'modules/servers/solusiovps/pages/change-hostname.php',
+        data: {
+            serviceId: {$serviceid},
+            hostname: hostname
+        },
+        success: function (response) {
+            domain = hostname;
+
+            alert(response);
         }
     });
 }
