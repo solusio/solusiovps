@@ -20,14 +20,18 @@ $_LANG['solusiovps_button_cancel'] = 'Cancel';
 $_LANG['solusiovps_button_start'] = 'Start';
 $_LANG['solusiovps_button_stop'] = 'Stop';
 $_LANG['solusiovps_button_reset_pw'] = 'Reset Root Password';
+$_LANG['solusiovps_button_change_hostname'] = 'Change Hostname';
 $_LANG['solusiovps_button_create_backup'] = 'Create Backup';
 $_LANG['solusiovps_button_restore_backup'] = 'Restore';
 
 $_LANG['solusiovps_confirm_reinstall'] = 'Reinstall the server?';
 $_LANG['solusiovps_password_reset_success'] = 'The root password has been reset. Please check your mailbox for an email with a password-reset link.';
+$_LANG['solusiovps_new_hostname'] = 'Change hostname to:';
+$_LANG['solusiovps_hostname_changed'] = 'The hostname has been changed';
 
 $_LANG['solusiovps_error_server_already_created'] = 'A server can be created only once.';
 $_LANG['solusiovps_error_server_not_found'] = 'The server was not found.';
+$_LANG['solusiovps_error_change_hostname'] = 'Failed to change the hostname';
 
 $_LANG['solusiovps_exception_page_default_title'] = 'Oops! Something went wrong.';
 $_LANG['solusiovps_exception_page_default_message'] = 'Please go back and try again. If the problem persists, please contact technical support.';

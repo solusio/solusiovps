@@ -88,4 +88,13 @@ class ServerResource extends ApiResource
     {
         return $this->processResponse($this->connector->post("servers/{$id}/reset_password"));
     }
+
+    public function changeHostname(int $id, string $hostname): array
+    {
+        return $this->processResponse($this->connector->patch("servers/{$id}", [
+            'json' => [
+                'name' => $hostname,
+            ],
+        ]));
+    }
 }
