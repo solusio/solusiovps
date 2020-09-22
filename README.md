@@ -43,7 +43,7 @@ Create a server group in WHMCS and assign the server which was created on the pr
 
 Create a product in WHMCS and select `SolusIO VPS` as the linked module and the server group you configured previous.
 
-Select the `Plan`, `Default Location` and `Operating System` and save changes.
+Select the `Plan`, `Default Location` and `Default Operating System` or `Application` and save changes. If application is selected then the operating system is ignored.
 
 ### Optional Configuration
 
@@ -68,3 +68,7 @@ Create a configurable option named `Operating System`. Add options with the foll
 The module gives the ability to specify an SSH key on ordering of a product. This is done in the form a product custom field.
 
 Create a custom field named `SSH Key` and type `Text Area`.
+
+#### Applications
+
+Create corresponding product custom fields for applications with the same property names as defined in SolusIO.

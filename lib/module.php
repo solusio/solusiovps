@@ -7,6 +7,7 @@ use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\DataWrapper;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ApplicationResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LocationResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\OsImageResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\PlanResource;
@@ -69,13 +70,6 @@ function solusiovps_ConfigOptions(): array
             'Loader' => 'solusiovps_PlanLoader',
             'SimpleMode' => true,
         ],
-        'os_image' => [
-            'FriendlyName' => $_LANG['solusiovps_config_option_default_operating_system'],
-            'Type' => 'text',
-            'Size' => '25',
-            'Loader' => 'solusiovps_OsImageLoader',
-            'SimpleMode' => true,
-        ],
         'location' => [
             'FriendlyName' => $_LANG['solusiovps_config_option_default_location'],
             'Type' => 'text',
@@ -83,9 +77,18 @@ function solusiovps_ConfigOptions(): array
             'Loader' => 'solusiovps_LocationLoader',
             'SimpleMode' => true,
         ],
-        'backup_enabled' => [
-            'FriendlyName' => $_LANG['solusiovps_config_option_backup_enabled'],
-            'Type' => 'yesno',
+        'os_image' => [
+            'FriendlyName' => $_LANG['solusiovps_config_option_default_operating_system'],
+            'Type' => 'text',
+            'Size' => '25',
+            'Loader' => 'solusiovps_OsImageLoader',
+            'SimpleMode' => true,
+        ],
+        'application' => [
+            'FriendlyName' => $_LANG['solusiovps_config_option_application'],
+            'Type' => 'text',
+            'Size' => '25',
+            'Loader' => 'solus_ApplicationLoader',
             'SimpleMode' => true,
         ],
         'user_data' => [
@@ -93,6 +96,11 @@ function solusiovps_ConfigOptions(): array
             'Type' => 'textarea',
             'Rows' => 5,
             'Cols' => 25,
+            'SimpleMode' => true,
+        ],
+        'backup_enabled' => [
+            'FriendlyName' => $_LANG['solusiovps_config_option_backup_enabled'],
+            'Type' => 'yesno',
             'SimpleMode' => true,
         ],
     ];
@@ -171,6 +179,33 @@ function solusiovps_LocationLoader(array $params): array
 
 /**
  * @param array $params
+ * @return array
+ * @throws Exception
+ */
+function solus_ApplicationLoader(array $params): array
+{
+    global $_LANG;
+
+    try {
+        $applicationResource = new ApplicationResource(Connector::create($params));
+        $result = [
+            0 => $_LANG['solusiovps_config_option_none'],
+        ];
+
+        foreach (DataWrapper::wrap($applicationResource->list()) as $item) {
+            $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
+        }
+
+        return $result;
+    } catch (Exception $e) {
+        Logger::log([], $e->getMessage());
+
+        throw $e;
+    }
+}
+
+/**
+ * @param array $params
  * @return string
  */
 function solusiovps_CreateAccount(array $params): string
@@ -211,13 +246,7 @@ function solusiovps_CreateAccount(array $params): string
         $locationId = (int) $params['configoptions'][ProductConfigOption::LOCATION];
 
         if ($locationId === 0) {
-            $locationId = (int) Arr::get($params, 'configoption3');
-        }
-
-        $osId = (int) $params['configoptions'][ProductConfigOption::OPERATING_SYSTEM];
-
-        if ($osId === 0) {
-            $osId = (int) Arr::get($params, 'configoption2');
+            $locationId = (int) Arr::get($params, 'configoption2');
         }
 
         $serviceId = (int) $params['serviceid'];
@@ -227,7 +256,6 @@ function solusiovps_CreateAccount(array $params): string
             'name' => $name,
             'plan' => (int) Arr::get($params, 'configoption1'),
             'location' => $locationId,
-            'os' => $osId,
             'password' => $params['password'],
         ];
 
@@ -237,10 +265,29 @@ function solusiovps_CreateAccount(array $params): string
             ];
         }
 
-        $userData = Arr::get($params, 'configoption5');
+        $appId = (int) Arr::get($params, 'configoption4');
 
-        if ($userData !== '') {
-            $serverData['user_data'] = Strings::convertToUserData($userData);
+        if ($appId > 0) {
+            $appData = $params['customfields'];
+
+            unset($appData[SolusSshKey::CUSTOM_FIELD_SSH_KEY]);
+
+            $serverData['application'] = $appId;
+            $serverData['application_data'] = $appData;
+        } else {
+            $osId = (int) $params['configoptions'][ProductConfigOption::OPERATING_SYSTEM];
+
+            if ($osId === 0) {
+                $osId = (int) Arr::get($params, 'configoption3');
+            }
+
+            $serverData['os'] = $osId;
+
+            $userData = Arr::get($params, 'configoption5');
+
+            if ($userData !== '') {
+                $serverData['user_data'] = Strings::convertToUserData($userData);
+            }
         }
 
         $sshKey = Strings::convertToSshKey($params['customfields'][SolusSshKey::CUSTOM_FIELD_SSH_KEY] ?? '');
@@ -262,7 +309,7 @@ function solusiovps_CreateAccount(array $params): string
             $serverData['ssh_keys'] = [$sshKeyId];
         }
 
-        $isBackupsEnabled = (Arr::get($params, 'configoption4') === 'on');
+        $isBackupsEnabled = (Arr::get($params, 'configoption6') === 'on');
 
         if ($isBackupsEnabled) {
             $serverData['backup_settings'] = [
@@ -410,7 +457,7 @@ function solusiovps_ClientArea(array $params): array
 
         $serverResponse = $serverResource->get($server->server_id);
         $productId = (int) $params['pid'];
-        $defaultOsId = (int) Arr::get($params, 'configoption2');
+        $defaultOsId = (int) Arr::get($params, 'configoption3');
 
         return [
             'tabOverviewReplacementTemplate' => 'templates/overview.tpl',
