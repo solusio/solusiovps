@@ -136,9 +136,14 @@ function solusiovps_PlanLoader(array $params): array
  */
 function solusiovps_OsImageLoader(array $params): array
 {
+    global $_LANG;
+
     try {
         $osImageResource = new OsImageResource(Connector::create($params));
-        $result = [];
+
+        $result = [
+            0 => $_LANG['solusiovps_config_option_none'],
+        ];
 
         foreach (DataWrapper::wrap($osImageResource->list()) as $item) {
             foreach ($item['versions'] as $version) {
@@ -188,6 +193,7 @@ function solus_ApplicationLoader(array $params): array
 
     try {
         $applicationResource = new ApplicationResource(Connector::create($params));
+
         $result = [
             0 => $_LANG['solusiovps_config_option_none'],
         ];
