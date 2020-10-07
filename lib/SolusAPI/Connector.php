@@ -35,15 +35,22 @@ class Connector
         $apiUrl = $scheme . '://' . $host . '/api/v1/';
 
         return new Client([
+            'base_uri' => $apiUrl,
             'base_url' => $apiUrl,
             'defaults' => [
-                'verify' => false,
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                     'Authorization' => 'Bearer ' . $apiToken,
                 ],
+                'verify' => false,
             ],
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Bearer ' . $apiToken,
+            ],
+            'verify' => false,
         ]);
     }
 }

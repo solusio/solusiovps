@@ -5,7 +5,6 @@
 namespace WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources;
 
 use \GuzzleHttp\ClientInterface;
-use \GuzzleHttp\Message\ResponseInterface;
 
 /**
  * Class ApiResource
@@ -28,10 +27,10 @@ class ApiResource
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param $response
      * @return array
      */
-    protected function processResponse(ResponseInterface $response): array
+    protected function processResponse($response): array
     {
         if (!$body = $response->getBody()) {
             return [];
