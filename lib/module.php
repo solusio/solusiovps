@@ -244,6 +244,13 @@ function solusiovps_CreateAccount(array $params): string
 
             if ((int) $solusUser['billing_user_id'] !== $whmcsUserId) {
                 $solusUser['billing_user_id'] = (string) $whmcsUserId;
+                $roleIds = [];
+
+                foreach ($solusUser['roles'] as $role) {
+                    $roleIds[] = $role['id'];
+                }
+
+                $solusUser['roles'] = $roleIds;
 
                 $userResource->updateUser($solusUserId, $solusUser);
             }
