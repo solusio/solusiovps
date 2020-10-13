@@ -97,4 +97,14 @@ class ServerResource extends ApiResource
             ],
         ]));
     }
+
+    public function resize(int $id, int $planId): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/resize", [
+            'json' => [
+                'preserve_disk' => true,
+                'plan_id' => $planId,
+            ],
+        ]));
+    }
 }
