@@ -4,6 +4,14 @@
 
 namespace WHMCS\Module\Server\SolusIoVps\WhmcsAPI;
 
+use WHMCS\Module\Server\SolusIoVps\Database\Models\Hosting;
+use WHMCS\Module\Server\SolusIoVps\Database\Models\Product as ProductModel;
+use WHMCS\Module\Server\SolusIoVps\Database\Models\Server;
+use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
+use WHMCS\Module\Server\SolusIoVps\Database\Models\Upgrade;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
+
 /**
  * @package WHMCS\Module\Server\SolusIoVps\WhmcsAPI
  */
@@ -15,5 +23,23 @@ class Product
             'serviceid' => $serviceId,
             'domain' => $domain,
         ]);
+    }
+
+    public static function upgrade(int $upgradeId): void
+    {
+        $upgrade = Upgrade::getById($upgradeId);
+        $serviceId = (int) $upgrade->relid;
+
+        list($newProductId, $paymentType) = explode(',', $upgrade->newvalue);
+
+        $newProduct = ProductModel::getById($newProductId);
+        $newPlanId = (int) $newProduct->configoption1;
+        $hosting = Hosting::getByServiceId($serviceId);
+        $server = SolusServer::getByServiceId($serviceId);
+        $serverId = (int) $hosting->server;
+        $serverParams = Server::getParams($serverId);
+        $serverResource = new ServerResource(Connector::create($serverParams));
+
+        $serverResource->resize($server->server_id, $newPlanId);
     }
 }

@@ -17,6 +17,7 @@ robocopy "%PROJECT_DIR%\templates" "%BUILD_DIR%\templates" /E
 
 robocopy "%PROJECT_DIR%" "%BUILD_DIR%" composer.json
 robocopy "%PROJECT_DIR%" "%BUILD_DIR%" composer.lock
+robocopy "%PROJECT_DIR%" "%BUILD_DIR%" hooks.php
 robocopy "%PROJECT_DIR%" "%BUILD_DIR%" package.json
 robocopy "%PROJECT_DIR%" "%BUILD_DIR%" package-lock.json
 robocopy "%PROJECT_DIR%" "%BUILD_DIR%" solusiovps.php
