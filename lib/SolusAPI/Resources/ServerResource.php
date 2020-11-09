@@ -107,4 +107,13 @@ class ServerResource extends ApiResource
             ],
         ]));
     }
+
+    public function changeBootMode(int $id, string $bootMode): array
+    {
+        return $this->processResponse($this->connector->patch("servers/{$id}", [
+            'json' => [
+                'boot_mode' => $bootMode,
+            ],
+        ]));
+    }
 }

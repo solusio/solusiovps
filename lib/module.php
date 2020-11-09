@@ -481,6 +481,7 @@ function solusiovps_ClientArea(array $params): array
                     'operating_systems' => json_encode(ProductConfigOption::getProductOptions($productId, ProductConfigOption::OPERATING_SYSTEM)),
                     'default_os_id' => $defaultOsId,
                     'domain' => $params['domain'],
+                    'boot_mode' => $serverResponse['data']['boot_mode'],
                 ],
             ],
         ];

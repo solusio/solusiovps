@@ -1,3 +1,42 @@
+<style>
+.rescue-container {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.boot-mode-button {
+    border: 1px solid silver;
+    cursor: pointer;
+    display: grid;
+    flex: 1;
+    grid-template-columns: 50px 1fr;
+    /*grid-template-rows: repeat(2, 1fr);*/
+    grid-template-rows: auto;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    margin: 5px;
+}
+
+.boot-mode-button--pushed {
+    background-color: #ececec;
+}
+
+.boot-mode-button-image {
+    grid-area: 1 / 1 / 3 / 2;
+    text-align: center;
+}
+
+.boot-mode-button-title {
+    font-size: 17px;
+    font-weight: bold;
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+.boot-mode-button-description {
+    grid-area: 2 / 2 / 3 / 3;
+}
+</style>
+
 <div id="dlg-os-selector" class="modal">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -23,6 +62,42 @@
     </div>
 </div>
 
+<div id="dlg-rescue-mode" class="modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>
+                    {$LANG.solusiovps_rescue_mode_summary}
+                </p>
+                <div class="rescue-container">
+                    <div id="btn-boot-mode-disk" class="boot-mode-button boot-mode-button--pushed" onclick="setBootMode('disk');">
+                        <div class="boot-mode-button-image">
+                            <img src="modules/servers/solusiovps/img/hdd.png" />
+                        </div>
+                        <div class="boot-mode-button-title">Boot from Disk</div>
+                        <div class="boot-mode-button-description">Select this option to boot your server from the disk the next time the server is restarted.</div>
+                    </div>
+                    <div id="btn-boot-mode-rescue" class="boot-mode-button" onclick="setBootMode('rescue');">
+                        <div class="boot-mode-button-image">
+                            <img src="modules/servers/solusiovps/img/cd.png" />
+                        </div>
+                        <div class="boot-mode-button-title">Boot from Rescue ISO</div>
+                        <div class="boot-mode-button-description">Select this option to boot your server from the rescue ISO the next time the server is restarted.</div>
+                    </div>
+                </div>
+                <p>
+                    {$LANG.solusiovps_rescue_mode_description}
+                </p>
+                <p style="text-align: right;">
+                    <button class="btn btn-info" onclick="rescueModeClose();">
+                        {$LANG.solusiovps_button_close}
+                    </button>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="media">
     <div class="media-body">
         <div class="panel panel-default">
@@ -40,6 +115,7 @@
                     <button onclick="restartServer();" id="btn-restart-server" class="btn btn-info">
                         {$LANG.solusiovps_button_restart}
                     </button>
+                    <br /><br />
                     <button onclick="reinstallServer();" id="btn-reinstall-server" class="btn btn-info">
                         {$LANG.solusiovps_button_reinstall}
                     </button>
@@ -51,6 +127,9 @@
                     </button>
                     <button onclick="changeHostname();" id="btn-change-hostname" class="btn btn-info">
                         {$LANG.solusiovps_button_change_hostname}
+                    </button>
+                    <button onclick="rescueMode();" id="btn-rescue-mode" class="btn btn-info">
+                        {$LANG.solusiovps_button_rescue_mode}
                     </button>
                 </div>
             </div>
@@ -163,6 +242,7 @@ const operatingSystems = {$data['operating_systems']};
 const defaultOsId = {$data['default_os_id']};
 
 let domain = '{$data['domain']}';
+let bootMode = '{$data['boot_mode']}';
 
 const statusUpdate = status => {
     $('#btn-start-server').prop('disabled', (status !== 'stopped'));
@@ -172,6 +252,7 @@ const statusUpdate = status => {
     $('#btn-vnc').prop('disabled', (status !== 'started'));
     $('#btn-reset-pw').prop('disabled', (status !== 'started'));
     $('#btn-change-hostname').prop('disabled', ((status !== 'stopped') && (status !== 'started')));
+    $('#btn-rescue-mode').prop('disabled', ((status !== 'stopped') && (status !== 'started')));
 }
 
 const checkStatus = () => {
@@ -305,6 +386,44 @@ const changeHostname = () => {
             alert(response);
         }
     });
+}
+
+const rescueMode = () => {
+    updateBootMode();
+
+    $('#dlg-rescue-mode').modal('show');
+}
+
+const rescueModeClose = () => {
+    $('#dlg-rescue-mode').modal('hide');
+}
+
+const updateBootMode = () => {
+    $('.boot-mode-button').removeClass('boot-mode-button--pushed');
+
+    if (bootMode === 'disk') {
+        $('#btn-boot-mode-disk').addClass('boot-mode-button--pushed');
+    } else {
+        $('#btn-boot-mode-rescue').addClass('boot-mode-button--pushed');
+    }
+}
+
+const setBootMode = mode => {
+    if (bootMode === mode) {
+        return;
+    }
+
+    $.get({
+        url: 'modules/servers/solusiovps/pages/change-boot-mode.php',
+        data: {
+            serviceId: {$serviceid},
+            bootMode: mode
+        }
+    });
+
+    bootMode = mode;
+
+    updateBootMode();
 }
 
 const getBackups = () => {
