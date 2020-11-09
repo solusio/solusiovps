@@ -10,6 +10,7 @@ set RELEASE_DIR=%PROJECT_DIR%\releases
 
 mkdir "%BUILD_DIR%"
 
+robocopy "%PROJECT_DIR%\img" "%BUILD_DIR%\img" /E
 robocopy "%PROJECT_DIR%\lang" "%BUILD_DIR%\lang" /E
 robocopy "%PROJECT_DIR%\lib" "%BUILD_DIR%\lib" /E
 robocopy "%PROJECT_DIR%\pages" "%BUILD_DIR%\pages" /E
