@@ -10,7 +10,6 @@
     display: grid;
     flex: 1;
     grid-template-columns: 50px 1fr;
-    /*grid-template-rows: repeat(2, 1fr);*/
     grid-template-rows: auto;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
@@ -36,6 +35,8 @@
     grid-area: 2 / 2 / 3 / 3;
 }
 </style>
+
+<script src="modules/servers/solusiovps/node_modules/chart.js/dist/Chart.js"></script>
 
 <div id="dlg-os-selector" class="modal">
     <div class="modal-dialog modal-dialog-centered">
@@ -132,6 +133,50 @@
                         {$LANG.solusiovps_button_rescue_mode}
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display: -webkit-flex; display: flex;">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>{$LANG.solusiovps_chart_cpu_title}</h4>
+                <canvas id="cpuChart" style="height: 200px; width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display: -webkit-flex; display: flex;">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>{$LANG.solusiovps_chart_network_title}</h4>
+                <canvas id="networkChart" style="height: 200px; width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display: -webkit-flex; display: flex;">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>{$LANG.solusiovps_chart_disk_title}</h4>
+                <canvas id="diskChart" style="height: 200px; width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="display: -webkit-flex; display: flex;">
+    <div class="col-sm-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <h4>{$LANG.solusiovps_chart_memory_title}</h4>
+                <canvas id="memoryChart" style="height: 200px; width: 100%;"></canvas>
             </div>
         </div>
     </div>
@@ -478,7 +523,264 @@ const restoreBackup = backupId => {
     });
 }
 
+const getUsage = () => {
+    $.get({
+        url: 'modules/servers/solusiovps/pages/usage.php',
+        data: {
+            serviceId: {$serviceid}
+        },
+        dataType: 'json'
+    }).done(function (usage) {
+        cpuChartData.labels = [];
+        cpuChartData.datasets[0].data = [];
+
+        usage.cpu.forEach(item => {
+            cpuChartData.labels.push(item.second);
+            cpuChartData.datasets[0].data.push(item.load_average);
+        });
+
+        cpuChart.update();
+
+        networkChartData.labels = [];
+        networkChartData.datasets[0].data = [];
+        networkChartData.datasets[1].data = [];
+
+        usage.network.forEach(item => {
+            networkChartData.labels.push(item.second);
+            networkChartData.datasets[0].data.push(item.read_kb);
+            networkChartData.datasets[0].data.push(item.write_kb);
+        });
+
+        networkChart.update();
+
+        diskChartData.labels = [];
+        diskChartData.datasets[0].data = [];
+        diskChartData.datasets[1].data = [];
+
+        usage.disk.forEach(item => {
+            diskChartData.labels.push(item.second);
+            diskChartData.datasets[0].data.push(item.read_kb);
+            diskChartData.datasets[0].data.push(item.write_kb);
+        });
+
+        diskChart.update();
+
+        memoryChartData.labels = [];
+        memoryChartData.datasets[0].data = [];
+
+        usage.memory.forEach(item => {
+            memoryChartData.labels.push(item.second);
+            memoryChartData.datasets[0].data.push(item.memory);
+        });
+
+        memoryChart.update();
+
+        setTimeout(getUsage, 5000);
+    });
+}
+
+const cpuChartData = {
+    labels: [],
+    datasets: [{
+        label: '{$LANG.solusiovps_chart_cpu_label_load}',
+        data: [],
+        fill: true,
+        backgroundColor: 'rgba(138,173,65,0.5)',
+        borderColor: 'rgba(138,173,65,1)',
+        borderWidth: 2,
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        pointHoverBackgroundColor: 'rgba(138,173,65,1)',
+        pointHoverBorderColor: 'rgba(138,173,65,0.5)'
+    }]
+};
+
+const cpuChart = new Chart($('#cpuChart'), {
+    type: 'line',
+    data: cpuChartData,
+    options: {
+        animation: false,
+        responsive: false,
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 20
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    min: 0,
+                    precision: 0
+                }
+            }]
+        }
+    }
+});
+
+const networkChartData = {
+    labels: [],
+    datasets: [{
+        label: '{$LANG.solusiovps_chart_network_label_read}',
+        data: [],
+        fill: true,
+        backgroundColor: 'rgba(40,170,222,0.5)',
+        borderColor: 'rgba(40,170,222,1)',
+        borderWidth: 2,
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        pointHoverBackgroundColor: 'rgba(40,170,222,1)',
+        pointHoverBorderColor: 'rgba(40,170,222,0.5)'
+    },{
+        label: '{$LANG.solusiovps_chart_network_label_write}',
+        data: [],
+        fill: true,
+        backgroundColor: 'rgba(138,173,65,0.5)',
+        borderColor: 'rgba(138,173,65,1)',
+        borderWidth: 2,
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        pointHoverBackgroundColor: 'rgba(138,173,65,1)',
+        pointHoverBorderColor: 'rgba(138,173,65,0.5)'
+    }]
+};
+
+const networkChart = new Chart($('#networkChart'), {
+    type: 'line',
+    data: networkChartData,
+    options: {
+        animation: false,
+        responsive: false,
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 20
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    min: 0,
+                    precision: 0
+                }
+            }]
+        }
+    }
+});
+
+const diskChartData = {
+    labels: [],
+    datasets: [{
+        label: '{$LANG.solusiovps_chart_disk_label_read}',
+        data: [],
+        fill: true,
+        backgroundColor: 'rgba(40,170,222,0.5)',
+        borderColor: 'rgba(40,170,222,1)',
+        borderWidth: 2,
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        pointHoverBackgroundColor: 'rgba(40,170,222,1)',
+        pointHoverBorderColor: 'rgba(40,170,222,0.5)'
+    },{
+        label: '{$LANG.solusiovps_chart_disk_label_write}',
+        data: [],
+        fill: true,
+        backgroundColor: 'rgba(138,173,65,0.5)',
+        borderColor: 'rgba(138,173,65,1)',
+        borderWidth: 2,
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        pointHoverBackgroundColor: 'rgba(138,173,65,1)',
+        pointHoverBorderColor: 'rgba(138,173,65,0.5)'
+    }]
+};
+
+const diskChart = new Chart($('#diskChart'), {
+    type: 'line',
+    data: diskChartData,
+    options: {
+        animation: false,
+        responsive: false,
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 20
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    min: 0,
+                    precision: 0
+                }
+            }]
+        }
+    }
+});
+
+const memoryChartData = {
+    labels: [],
+    datasets: [{
+        label: '{$LANG.solusiovps_chart_memory_label_usage}',
+        data: [],
+        fill: true,
+        backgroundColor: 'rgba(138,173,65,0.5)',
+        borderColor: 'rgba(138,173,65,1)',
+        borderWidth: 2,
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        pointHoverBackgroundColor: 'rgba(138,173,65,1)',
+        pointHoverBorderColor: 'rgba(138,173,65,0.5)'
+    }]
+};
+
+const memoryChart = new Chart($('#memoryChart'), {
+    type: 'line',
+    data: memoryChartData,
+    options: {
+        animation: false,
+        responsive: false,
+        scales: {
+            xAxes: [{
+                ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 20
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    min: 0,
+                    precision: 0
+                }
+            }]
+        }
+    }
+});
+
 statusUpdate('{$data['status']}');
 checkStatus();
+getUsage();
 getBackups();
 </script>

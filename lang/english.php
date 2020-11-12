@@ -46,3 +46,17 @@ $_LANG['solusiovps_exception_page_pending_title'] = 'The service is being provis
 $_LANG['solusiovps_exception_page_pending_message'] = 'Your service is being provisioned. If you have any questions, please contact technical support.';
 $_LANG['solusiovps_exception_page_cancelled_title'] = 'The service was terminated';
 $_LANG['solusiovps_exception_page_cancelled_message'] = 'This service was already terminated. If you have any questions, please contact technical support.';
+
+$_LANG['solusiovps_chart_cpu_title'] = 'CPU usage';
+$_LANG['solusiovps_chart_cpu_label_load'] = 'Load average (%)';
+
+$_LANG['solusiovps_chart_network_title'] = 'Network usage';
+$_LANG['solusiovps_chart_network_label_read'] = 'Read KiB';
+$_LANG['solusiovps_chart_network_label_write'] = 'Write KiB';
+
+$_LANG['solusiovps_chart_disk_title'] = 'Disk usage';
+$_LANG['solusiovps_chart_disk_label_read'] = 'Read KiB';
+$_LANG['solusiovps_chart_disk_label_write'] = 'Write KiB';
+
+$_LANG['solusiovps_chart_memory_title'] = 'Memory usage';
+$_LANG['solusiovps_chart_memory_label_usage'] = 'Usage MiB';
