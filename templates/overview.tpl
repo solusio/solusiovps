@@ -419,6 +419,10 @@ const changeHostname = () => {
         return;
     }
 
+    if (!confirm('{$LANG.solusiovps_confirm_change_hostname}')) {
+        return;
+    }
+
     $.get({
         url: 'modules/servers/solusiovps/pages/change-hostname.php',
         data: {
@@ -427,6 +431,8 @@ const changeHostname = () => {
         },
         success: function (response) {
             domain = hostname;
+
+            restartServer();
 
             alert(response);
         }
