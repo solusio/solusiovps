@@ -31,6 +31,7 @@ $_LANG['solusiovps_button_restore_backup'] = 'Restore';
 $_LANG['solusiovps_confirm_reinstall'] = 'Reinstall the server?';
 $_LANG['solusiovps_password_reset_success'] = 'The root password has been reset. Please check your mailbox for an email with a password-reset link.';
 $_LANG['solusiovps_new_hostname'] = 'Change hostname to:';
+$_LANG['solusiovps_confirm_change_hostname'] = 'To change the hostname, the machine needs to be rebooted. Continue?';
 $_LANG['solusiovps_hostname_changed'] = 'The hostname has been changed';
 
 $_LANG['solusiovps_error_server_already_created'] = 'A server can be created only once.';
