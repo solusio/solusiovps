@@ -30,6 +30,19 @@ class ServerResource extends ApiResource
         return $this->processResponse($this->connector->get("servers/{$id}"));
     }
 
+    public function getAllByUser(int $userId): array
+    {
+        $response = $this->processResponse($this->connector->get("servers", [
+            'query' => [
+                'filter' => [
+                    'user_id' => $userId,
+                ],
+            ],
+        ]));
+
+        return $response['data'];
+    }
+
     /**
      * @param int $id
      * @return array

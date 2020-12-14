@@ -27,4 +27,9 @@ class Server
             'serverpassword' => decrypt($row->password),
         ];
     }
+
+    public static function getServerIds(): array
+    {
+        return DB::table(self::TABLE)->pluck('id')->toArray();
+    }
 }
