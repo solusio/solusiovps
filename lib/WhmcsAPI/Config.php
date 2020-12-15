@@ -28,6 +28,6 @@ class Config
             }
         }
 
-        return [];
+        throw new \Exception('Failed to load module configuration');
     }
 }
