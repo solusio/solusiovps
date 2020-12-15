@@ -15,4 +15,19 @@ class Config
 
         return $response['value'];
     }
+
+    public static function loadModuleConfig(): array
+    {
+        $configFile = dirname(__DIR__, 2) . '/config.php';
+
+        if (is_file($configFile)) {
+            $config = require $configFile;
+
+            if (is_array($config)) {
+                return $config;
+            }
+        }
+
+        throw new \Exception('Failed to load module configuration');
+    }
 }

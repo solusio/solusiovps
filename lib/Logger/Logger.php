@@ -9,7 +9,7 @@ namespace WHMCS\Module\Server\SolusIoVps\Logger;
  */
 final class Logger
 {
-    const MODULE_NAME = 'solus';
+    const MODULE_NAME = 'solusiovps';
 
     /**
      * @param array $data

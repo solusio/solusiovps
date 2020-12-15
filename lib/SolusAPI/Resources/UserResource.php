@@ -65,4 +65,13 @@ class UserResource extends ApiResource
             'json' => $data,
         ]));
     }
+
+    /**
+     * @param int $userId
+     * @return void
+     */
+    public function deleteUser(int $userId): void
+    {
+        $this->processResponse($this->connector->delete("users/{$userId}"));
+    }
 }
