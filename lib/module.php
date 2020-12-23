@@ -3,6 +3,7 @@
 // Copyright 2020. Plesk International GmbH.
 
 use \GuzzleHttp\Exception\RequestException;
+use WHMCS\Module\Server\SolusIoVps\Exceptions\SolusException;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\DataWrapper;
@@ -213,6 +214,7 @@ function solus_ApplicationLoader(array $params): array
 /**
  * @param array $params
  * @return string
+ * @throws SolusException
  */
 function solusiovps_CreateAccount(array $params): string
 {
@@ -340,39 +342,45 @@ function solusiovps_CreateAccount(array $params): string
         $userApiToken = $userResource->createToken($solusUserId);
         $serverResource = new ServerResource(Connector::create($params, $userApiToken));
         $response = $serverResource->create($serverData);
-        $payload = Arr::get($response, 'data', []);
+        $data = Arr::get($response, 'data', []);
 
         if (empty($params['domain'])) {
-            Hosting::updateByServiceId($params['serviceid'], ['domain' => $payload['name']]);
+            Hosting::updateByServiceId($params['serviceid'], ['domain' => $data['name']]);
         }
 
-        $assignedIps = [];
+        $assignedIps = array_map(static function (array $item) {
+            return $item['ip'];
+        }, Arr::get($data, 'ip_addresses.ipv4', []));
 
-        foreach ($payload['ips'] as $item) {
-            $assignedIps[] = $item['ip'];
+        if ($ipV6PrimaryIp = Arr::get($data, 'ip_addresses.ipv6.primary_ip')) {
+            $assignedIps[] = $ipV6PrimaryIp;
+        }
+
+        if (!$assignedIps) {
+            throw new LogicException('Virtual server should have at least one ip address');
         }
 
         Hosting::updateByServiceId($params['serviceid'], [
-            'dedicatedip' => $payload['ips'][0]['ip'],
+            'dedicatedip' => $assignedIps[0],
             'assignedips' => implode(',', $assignedIps),
         ]);
 
         SolusServer::create([
             'service_id' => $serviceId,
             'server_id' => (int) Arr::get($response, 'data.id'),
-            'payload' => json_encode($payload),
+            'payload' => json_encode($data),
         ]);
 
         return 'success';
+    } catch (RequestException $e) {
+        Logger::log($params, $e->getResponse()->getBody()->getContents());
     } catch (Exception $e) {
-        if ($e instanceof RequestException) {
-            Logger::log($params, $e->getResponse()->getBody()->getContents());
-        }
-
         Logger::log($params, $e->getMessage());
 
         return $e->getMessage();
     }
+
+    throw new SolusException('Failed to place new order, something went wrong');
 }
 
 /**
@@ -476,7 +484,7 @@ function solusiovps_ClientArea(array $params): array
             'tabOverviewReplacementTemplate' => 'templates/overview.tpl',
             'templateVariables' => [
                 'data' => [
-                    'ip' => $serverResponse['data']['ips'][0]['ip'],
+                    'ip' => Arr::get($serverResponse, 'data.ip_addresses.ipv4.0.ip'),
                     'status' => $serverResponse['data']['status'],
                     'operating_systems' => json_encode(ProductConfigOption::getProductOptions($productId, ProductConfigOption::OPERATING_SYSTEM)),
                     'default_os_id' => $defaultOsId,
