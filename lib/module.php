@@ -9,10 +9,12 @@ use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\DataWrapper;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ApplicationResource;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LimitGroupResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LocationResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\OsImageResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\PlanResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ProjectResource;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\RoleResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\SshKeyResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\UserResource;
@@ -64,44 +66,58 @@ function solusiovps_ConfigOptions(): array
     global $_LANG;
 
     return [
-        'plan' => [
+        'plan' => [ // configoption1
             'FriendlyName' => $_LANG['solusiovps_config_option_plan'],
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solusiovps_PlanLoader',
             'SimpleMode' => true,
         ],
-        'location' => [
+        'location' => [ // configoption2
             'FriendlyName' => $_LANG['solusiovps_config_option_default_location'],
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solusiovps_LocationLoader',
             'SimpleMode' => true,
         ],
-        'os_image' => [
+        'os_image' => [ // configoption3
             'FriendlyName' => $_LANG['solusiovps_config_option_default_operating_system'],
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solusiovps_OsImageLoader',
             'SimpleMode' => true,
         ],
-        'application' => [
+        'application' => [ // configoption4
             'FriendlyName' => $_LANG['solusiovps_config_option_application'],
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solus_ApplicationLoader',
             'SimpleMode' => true,
         ],
-        'user_data' => [
+        'user_data' => [ // configoption5
             'FriendlyName' => $_LANG['solusiovps_config_option_user_data'],
             'Type' => 'textarea',
             'Rows' => 5,
             'Cols' => 25,
             'SimpleMode' => true,
         ],
-        'backup_enabled' => [
+        'backup_enabled' => [ // configoption6
             'FriendlyName' => $_LANG['solusiovps_config_option_backup_enabled'],
             'Type' => 'yesno',
+            'SimpleMode' => true,
+        ],
+        'role' => [ // configoption7
+            'FriendlyName' => $_LANG['solusiovps_config_option_default_role'],
+            'Type' => 'text',
+            'Size' => '25',
+            'Loader' => 'solus_RoleLoader',
+            'SimpleMode' => true,
+        ],
+        'limit_group' => [ // configoption8
+            'FriendlyName' => $_LANG['solusiovps_config_option_default_limit_group'],
+            'Type' => 'text',
+            'Size' => '25',
+            'Loader' => 'solus_LimitGroupLoader',
             'SimpleMode' => true,
         ],
     ];
@@ -213,6 +229,62 @@ function solus_ApplicationLoader(array $params): array
 
 /**
  * @param array $params
+ * @return array
+ * @throws Exception
+ */
+function solus_RoleLoader(array $params): array
+{
+    global $_LANG;
+
+    try {
+        $roleResource = new RoleResource(Connector::create($params));
+
+        $result = [
+            0 => $_LANG['solusiovps_config_option_none'],
+        ];
+
+        foreach (DataWrapper::wrap($roleResource->list()) as $item) {
+            $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
+        }
+
+        return $result;
+    } catch (Exception $e) {
+        Logger::log([], $e->getMessage());
+
+        throw $e;
+    }
+}
+
+/**
+ * @param array $params
+ * @return array
+ * @throws Exception
+ */
+function solus_LimitGroupLoader(array $params): array
+{
+    global $_LANG;
+
+    try {
+        $limitGroupResource = new LimitGroupResource(Connector::create($params));
+
+        $result = [
+            0 => $_LANG['solusiovps_config_option_none'],
+        ];
+
+        foreach (DataWrapper::wrap($limitGroupResource->list()) as $item) {
+            $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
+        }
+
+        return $result;
+    } catch (Exception $e) {
+        Logger::log([], $e->getMessage());
+
+        throw $e;
+    }
+}
+
+/**
+ * @param array $params
  * @return string
  * @throws SolusException
  */
@@ -235,12 +307,24 @@ function solusiovps_CreateAccount(array $params): string
         $solusUser = $userResource->getUserByEmail($params['clientsdetails']['email']);
 
         if (empty($solusUser)) {
-            $solusUserId = $userResource->create([
+            $solusUserData = [
                 'password' => $params['password'],
                 'email' => $params['clientsdetails']['email'],
                 'billing_user_id' => (string) $whmcsUserId,
                 'status' => 'active',
-            ]);
+            ];
+
+            $role = (int) Arr::get($params, 'configoption7');
+            if ($role > 0) {
+                $solusUserData['roles'] = [$role];
+            }
+
+            $limitGroup = (int) Arr::get($params, 'configoption8');
+            if ($limitGroup > 0) {
+                $solusUserData['limit_group_id'] = $limitGroup;
+            }
+
+            $solusUserId = $userResource->create($solusUserData);
         } else {
             $solusUserId = $solusUser['id'];
 

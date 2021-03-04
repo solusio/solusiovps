@@ -14,6 +14,8 @@ $_LANG['solusiovps_config_option_default_location'] = 'Default Location';
 $_LANG['solusiovps_config_option_backup_enabled'] = 'Enable Backups';
 $_LANG['solusiovps_config_option_user_data'] = 'User Data';
 $_LANG['solusiovps_config_option_none'] = '(None)';
+$_LANG['solusiovps_config_option_default_role'] = 'Default Role';
+$_LANG['solusiovps_config_option_default_limit_group'] = 'Default Limit Group';
 
 $_LANG['solusiovps_button_restart'] = 'Restart';
 $_LANG['solusiovps_button_vnc'] = 'VNC Access';
