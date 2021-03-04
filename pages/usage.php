@@ -51,16 +51,16 @@ foreach ($cpuUsage['data']['items'] as $item) {
 foreach ($networkUsage['data']['items'] as $item) {
     $usage['network'][] = [
         'second' => date('H:i:s', strtotime($item['time'])),
-        'read_kb' => $item['read_kb'],
-        'write_kb' => $item['write_kb'],
+        'read_kb' => $item['derivative']['read_kb'],
+        'write_kb' => $item['derivative']['write_kb'],
     ];
 }
 
 foreach ($diskUsage['data']['items'] as $item) {
     $usage['disk'][] = [
         'second' => date('H:i:s', strtotime($item['time'])),
-        'read_kb' => $item['read_kb'],
-        'write_kb' => $item['write_kb'],
+        'read_kb' => $item['derivative']['read_kb'],
+        'write_kb' => $item['derivative']['write_kb'],
     ];
 }
 
