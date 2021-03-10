@@ -14,7 +14,7 @@ define('CLIENTAREA', true);
 require dirname(__DIR__, 4) . '/init.php';
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$serviceId = (int) $_GET['serviceId'];
+$serviceId = (int)$_GET['serviceId'];
 $ca = new ClientArea();
 $hosting = Hosting::getByServiceId($serviceId);
 
@@ -23,7 +23,7 @@ if (!$ca->hasAccessToHosting($hosting)) {
 }
 
 $solusServer = SolusServer::getByServiceId($serviceId);
-$serverId = (int) $hosting->server;
+$serverId = (int)$hosting->server;
 $serverParams = Server::getParams($serverId);
 $serverResource = new ServerResource(Connector::create($serverParams));
 $server = $serverResource->get($solusServer->server_id);
@@ -34,18 +34,47 @@ $url = 'wss://' . $serverParams['serverhostname'] . '/vnc?url=' . $response['url
 ?>
 
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>VNC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        #screen {
-            position: absolute;
-            top: 0;
-            left: 0;
+        body, html {
             height: 100%;
-            width: 100%;
+            min-height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #screen {
+            height: calc(100% - 60px);
+        }
+
+        .top-bar {
+            background: rgb(255, 255, 255);
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            max-height: 20px;
+        }
+
+        .container {
+            height: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #ctrl-alt-del {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            color: black;
+            text-decoration: none;
         }
     </style>
     <script type="module" crossorigin="anonymous">
@@ -53,23 +82,35 @@ $url = 'wss://' . $serverParams['serverhostname'] . '/vnc?url=' . $response['url
 
         const url = <?= json_encode($url) ?>;
         const password = <?= json_encode($password) ?>;
+        const options = {
+            credentials: {
+                password: password
+            }
+        };
 
-        let rfb = new RFB(
+        const rfb = new RFB(
             document.getElementById('screen'),
             url,
-            {
-                credentials: {
-                    password: password
-                }
-            }
+            options
         );
 
         rfb.scaleViewport = true;
         rfb.resizeSession = true;
         rfb.focusOnClick = true;
+
+        document.querySelector('#ctrl-alt-del').addEventListener('click', () =>  {
+            rfb.sendCtrlAltDel();
+        });
     </script>
 </head>
 <body>
+<div class="container">
+    <div class="top-bar">
+        <a href="#" id="ctrl-alt-del">
+            Ctrl + Alt + Del
+        </a>
+    </div>
     <div id="screen"></div>
+</div>
 </body>
 </html>
