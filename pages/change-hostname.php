@@ -36,7 +36,7 @@ try {
     $serverResource->changeHostname($server->server_id, $hostname);
     Product::updateDomain($serviceId, $hostname);
 
-    echo $_LANG['solusiovps_hostname_changed'];
+    echo Language::trans('solusiovps_hostname_changed');
 } catch (\Exception $e) {
-    echo $_LANG['solusiovps_error_change_hostname'];
+    echo Language::trans('solusiovps_error_change_hostname');
 }
