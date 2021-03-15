@@ -30,6 +30,13 @@ class Language
         require self::getLangDir() . '/' . $language . '.php';
     }
 
+    public static function trans(string $key): string
+    {
+        global $_LANG;
+
+        return isset($_LANG[$key]) ? $_LANG[$key] : $key;
+    }
+
     private static function getLangDir(): string
     {
         return dirname(__DIR__, 2) . '/lang';

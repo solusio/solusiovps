@@ -63,58 +63,56 @@ function solusiovps_MetaData(): array
  */
 function solusiovps_ConfigOptions(): array
 {
-    global $_LANG;
-
     return [
         'plan' => [ // configoption1
-            'FriendlyName' => $_LANG['solusiovps_config_option_plan'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_plan'),
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solusiovps_PlanLoader',
             'SimpleMode' => true,
         ],
         'location' => [ // configoption2
-            'FriendlyName' => $_LANG['solusiovps_config_option_default_location'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_default_location'),
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solusiovps_LocationLoader',
             'SimpleMode' => true,
         ],
         'os_image' => [ // configoption3
-            'FriendlyName' => $_LANG['solusiovps_config_option_default_operating_system'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_default_operating_system'),
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solusiovps_OsImageLoader',
             'SimpleMode' => true,
         ],
         'application' => [ // configoption4
-            'FriendlyName' => $_LANG['solusiovps_config_option_application'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_application'),
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solus_ApplicationLoader',
             'SimpleMode' => true,
         ],
         'user_data' => [ // configoption5
-            'FriendlyName' => $_LANG['solusiovps_config_option_user_data'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_user_data'),
             'Type' => 'textarea',
             'Rows' => 5,
             'Cols' => 25,
             'SimpleMode' => true,
         ],
         'backup_enabled' => [ // configoption6
-            'FriendlyName' => $_LANG['solusiovps_config_option_backup_enabled'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_backup_enabled'),
             'Type' => 'yesno',
             'SimpleMode' => true,
         ],
         'role' => [ // configoption7
-            'FriendlyName' => $_LANG['solusiovps_config_option_default_role'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_default_role'),
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solus_RoleLoader',
             'SimpleMode' => true,
         ],
         'limit_group' => [ // configoption8
-            'FriendlyName' => $_LANG['solusiovps_config_option_default_limit_group'],
+            'FriendlyName' => Language::trans('solusiovps_config_option_default_limit_group'),
             'Type' => 'text',
             'Size' => '25',
             'Loader' => 'solus_LimitGroupLoader',
@@ -153,13 +151,11 @@ function solusiovps_PlanLoader(array $params): array
  */
 function solusiovps_OsImageLoader(array $params): array
 {
-    global $_LANG;
-
     try {
         $osImageResource = new OsImageResource(Connector::create($params));
 
         $result = [
-            0 => $_LANG['solusiovps_config_option_none'],
+            0 => Language::trans('solusiovps_config_option_none'),
         ];
 
         foreach (DataWrapper::wrap($osImageResource->list()) as $item) {
@@ -206,13 +202,11 @@ function solusiovps_LocationLoader(array $params): array
  */
 function solus_ApplicationLoader(array $params): array
 {
-    global $_LANG;
-
     try {
         $applicationResource = new ApplicationResource(Connector::create($params));
 
         $result = [
-            0 => $_LANG['solusiovps_config_option_none'],
+            0 => Language::trans('solusiovps_config_option_none'),
         ];
 
         foreach (DataWrapper::wrap($applicationResource->list()) as $item) {
@@ -234,13 +228,11 @@ function solus_ApplicationLoader(array $params): array
  */
 function solus_RoleLoader(array $params): array
 {
-    global $_LANG;
-
     try {
         $roleResource = new RoleResource(Connector::create($params));
 
         $result = [
-            0 => $_LANG['solusiovps_config_option_none'],
+            0 => Language::trans('solusiovps_config_option_none'),
         ];
 
         foreach (DataWrapper::wrap($roleResource->list()) as $item) {
@@ -262,13 +254,11 @@ function solus_RoleLoader(array $params): array
  */
 function solus_LimitGroupLoader(array $params): array
 {
-    global $_LANG;
-
     try {
         $limitGroupResource = new LimitGroupResource(Connector::create($params));
 
         $result = [
-            0 => $_LANG['solusiovps_config_option_none'],
+            0 => Language::trans('solusiovps_config_option_none'),
         ];
 
         foreach (DataWrapper::wrap($limitGroupResource->list()) as $item) {
@@ -290,10 +280,8 @@ function solus_LimitGroupLoader(array $params): array
  */
 function solusiovps_CreateAccount(array $params): string
 {
-    global $_LANG;
-
     if ($params['status'] !== 'Pending') {
-        return $_LANG['solusiovps_error_server_already_created'];
+        return Language::trans('solusiovps_error_server_already_created');
     }
 
     try {
@@ -473,8 +461,6 @@ function solusiovps_CreateAccount(array $params): string
  */
 function solusiovps_TerminateAccount(array $params): string
 {
-    global $_LANG;
-
     try {
         $serverResource = new ServerResource(Connector::create($params));
 
@@ -486,7 +472,7 @@ function solusiovps_TerminateAccount(array $params): string
             return 'success';
         }
 
-        return $_LANG['solusiovps_error_server_not_found'];
+        return Language::trans('solusiovps_error_server_not_found');
     } catch (Exception $e) {
         Logger::log($params, $e->getMessage());
 
@@ -500,8 +486,6 @@ function solusiovps_TerminateAccount(array $params): string
  */
 function solusiovps_SuspendAccount(array $params): string
 {
-    global $_LANG;
-
     try {
         $serverResource = new ServerResource(Connector::create($params));
 
@@ -511,7 +495,7 @@ function solusiovps_SuspendAccount(array $params): string
             return 'success';
         }
 
-        return $_LANG['solusiovps_error_server_not_found'];
+        return Language::trans('solusiovps_error_server_not_found');
     } catch (Exception $e) {
         Logger::log($params, $e->getMessage());
 
@@ -525,8 +509,6 @@ function solusiovps_SuspendAccount(array $params): string
  */
 function solusiovps_UnsuspendAccount(array $params): string
 {
-    global $_LANG;
-
     try {
         $serverResource = new ServerResource(Connector::create($params));
 
@@ -536,7 +518,7 @@ function solusiovps_UnsuspendAccount(array $params): string
             return 'success';
         }
 
-        return $_LANG['solusiovps_error_server_not_found'];
+        return Language::trans('solusiovps_error_server_not_found');
     } catch (Exception $e) {
         Logger::log($params, $e->getMessage());
 
@@ -550,14 +532,12 @@ function solusiovps_UnsuspendAccount(array $params): string
  */
 function solusiovps_ClientArea(array $params): array
 {
-    global $_LANG;
-
     try {
         $serverResource = new ServerResource(Connector::create($params));
         $server = SolusServer::getByServiceId((int) Arr::get($params, 'serviceid'));
 
         if ($server === null) {
-            throw new Exception($_LANG['solusiovps_error_server_not_found']);
+            throw new Exception(Language::trans('solusiovps_error_server_not_found'));
         }
 
         $serverResponse = $serverResource->get($server->server_id);
@@ -580,15 +560,15 @@ function solusiovps_ClientArea(array $params): array
     } catch (Exception $exception) {
         Logger::log($params, $exception->getMessage());
 
-        $title = $_LANG['solusiovps_exception_page_default_title'];
-        $message = $_LANG['solusiovps_exception_page_default_message'];
+        $title = Language::trans('solusiovps_exception_page_default_title');
+        $message = Language::trans('solusiovps_exception_page_default_message');
 
         if ($params['status'] === 'Pending') {
-            $title = $_LANG['solusiovps_exception_page_pending_title'];
-            $message = $_LANG['solusiovps_exception_page_pending_message'];
+            $title = Language::trans('solusiovps_exception_page_pending_title');
+            $message = Language::trans('solusiovps_exception_page_pending_message');
         } elseif ($params['status'] === 'Cancelled') {
-            $title = $_LANG['solusiovps_exception_page_cancelled_title'];
-            $message = $_LANG['solusiovps_exception_page_cancelled_message'];
+            $title = Language::trans('solusiovps_exception_page_cancelled_title');
+            $message = Language::trans('solusiovps_exception_page_cancelled_message');
         }
 
         return [
@@ -622,13 +602,11 @@ function solusiovps_TestConnection(array $params)
 
 function solusiovps_AdminCustomButtonArray(array $params): array
 {
-    global $_LANG;
-
     $vncUrl = Config::getSystemUrl() . 'modules/servers/solusiovps/pages/vnc.php?serviceId=' . $params['serviceid'];
 
     return [
-        $_LANG['solusiovps_button_restart'] => 'restart',
-        $_LANG['solusiovps_button_vnc'] => [
+        Language::trans('solusiovps_button_restart') => 'restart',
+        Language::trans('solusiovps_button_vnc') => [
             'href' => "javascript:window.open('{$vncUrl}', '', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=800,height=450');",
         ],
     ];
