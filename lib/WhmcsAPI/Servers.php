@@ -5,6 +5,7 @@
 namespace WHMCS\Module\Server\SolusIoVps\WhmcsAPI;
 
 use WHMCS\Module\Server\SolusIoVps\Database\Models\Server;
+use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ProjectResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 
@@ -27,8 +28,10 @@ class Servers
 
                 return $serverParams;
             } catch (\Exception $e) {
-                return [];
+                Logger::log(['error' => $e->getMessage()], $e->getMessage());
             }
         }
+
+        return [];
     }
 }

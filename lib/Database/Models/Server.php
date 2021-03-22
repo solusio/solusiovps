@@ -30,6 +30,8 @@ class Server
 
     public static function getServerIds(): array
     {
-        return DB::table(self::TABLE)->pluck('id')->toArray();
+        $result = DB::table(self::TABLE)->pluck('id');
+
+        return collect($result)->all();
     }
 }

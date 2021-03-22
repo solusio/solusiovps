@@ -68,6 +68,18 @@ class UserResource extends ApiResource
 
     /**
      * @param int $userId
+     * @param array $data
+     * @return void
+     */
+    public function patchUser(int $userId, array $data): void
+    {
+        $this->processResponse($this->connector->patch("users/{$userId}", [
+            'json' => $data,
+        ]));
+    }
+
+    /**
+     * @param int $userId
      * @return void
      */
     public function deleteUser(int $userId): void
