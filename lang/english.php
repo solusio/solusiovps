@@ -18,6 +18,7 @@ $_LANG['solusiovps_config_option_default_role'] = 'Default Role';
 $_LANG['solusiovps_config_option_default_limit_group'] = 'Default Limit Group';
 
 $_LANG['solusiovps_button_restart'] = 'Restart';
+$_LANG['solusiovps_button_sync'] = 'Sync account';
 $_LANG['solusiovps_button_vnc'] = 'VNC Access';
 $_LANG['solusiovps_button_reinstall'] = 'Reinstall';
 $_LANG['solusiovps_button_cancel'] = 'Cancel';
@@ -39,6 +40,7 @@ $_LANG['solusiovps_hostname_changed'] = 'The hostname has been changed';
 $_LANG['solusiovps_error_server_already_created'] = 'A server can be created only once.';
 $_LANG['solusiovps_error_server_not_found'] = 'The server was not found.';
 $_LANG['solusiovps_error_change_hostname'] = 'Failed to change the hostname';
+$_LANG['solusiovps_error_user_not_found'] = 'User with such email not found in SolusIO';
 
 $_LANG['solusiovps_rescue_mode_summary'] = 'Booting from the rescue ISO helps you fix kernel mismatches and corrupted file systems.';
 $_LANG['solusiovps_rescue_mode_description'] = 'By default, a server is booted from its disk. If your server was booted from the rescue ISO and you want to boot the server from the disk again, do the following:<br /><br />1. Shut down or reboot your server. To shut down the server, click the Stop button above or use the command line.<br /><br />2. Power on your server. To do so, click the Start button above or boot the server from its disk.';

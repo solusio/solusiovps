@@ -2,6 +2,7 @@
 
 // Copyright 2020. Plesk International GmbH.
 
+use Carbon\Carbon;
 use \GuzzleHttp\Exception\RequestException;
 use WHMCS\Module\Server\SolusIoVps\Exceptions\SolusException;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
@@ -29,6 +30,7 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Crypt;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
+use WHMCS\Service\Status;
 
 if (!defined('WHMCS')) {
     die('This file cannot be accessed directly');
@@ -54,7 +56,10 @@ function solusiovps_MetaData(): array
         'APIVersion' => '1.1',
         'RequiresServer' => true,
         'ServiceSingleSignOnLabel' => false,
-        'AdminSingleSignOnLabel' => false
+        'AdminSingleSignOnLabel' => false,
+        'ListAccountsUniqueIdentifierDisplayName' => 'Domain',
+        'ListAccountsUniqueIdentifierField' => 'domain',
+        'ListAccountsProductField' => 'configoption1',
     ];
 }
 
@@ -533,6 +538,7 @@ function solusiovps_UnsuspendAccount(array $params): string
 function solusiovps_ClientArea(array $params): array
 {
     try {
+        solusiovps_syncAccount($params);
         $serverResource = new ServerResource(Connector::create($params));
         $server = SolusServer::getByServiceId((int) Arr::get($params, 'serviceid'));
 
@@ -609,6 +615,7 @@ function solusiovps_AdminCustomButtonArray(array $params): array
         Language::trans('solusiovps_button_vnc') => [
             'href' => "javascript:window.open('{$vncUrl}', '', 'menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=800,height=450');",
         ],
+        Language::trans('solusiovps_button_sync') => 'syncAccount',
     ];
 }
 
@@ -627,5 +634,87 @@ function solusiovps_restart(array $params)
         return 'success';
     } catch (Exception $e) {
         return $e->getMessage();
+    }
+}
+
+function solusiovps_ListAccounts(array $params)
+{
+    try {
+        $accounts = [];
+
+        $serverParams = Server::getParams((int)$params['serverid']);
+        $serverResource = new ServerResource(Connector::create($serverParams));
+
+        $current_page = 1;
+        do {
+            $serversOnPage = $serverResource->listServerPage($current_page);
+            $lastPage = Arr::get($serversOnPage, 'meta', [])['last_page'];
+
+            foreach (Arr::get($serversOnPage, 'data', []) as $server) {
+                $accounts[] = [
+                    'email' => $server['user']['email'],
+                    'username' => $server['user']['email'],
+                    'domain' => $server['name'],
+                    'uniqueIdentifier' => $server['name'],
+                    'product' => $server['plan']['name'],
+                    'primaryip' => $server['ip_addresses']['ipv4'][0]['ip'],
+                    'created' => Carbon::parse($server['created_at'])->format('Y-m-d H:i:s'),
+                    'status' => !$server['is_suspended'] ? Status::ACTIVE : Status::SUSPENDED,
+                ];
+            }
+            $current_page++;
+        } while ($current_page <= $lastPage);
+
+        return [
+            'success' => true,
+            'accounts' => $accounts,
+        ];
+    } catch (Exception $e) {
+        return [
+            'success'  => false,
+            'error' => $e->getMessage(),
+        ];
+    }
+}
+
+function solusiovps_syncAccount(array $params)
+{
+    try {
+        if (!empty(SolusServer::getByServiceId($params['serviceid']))) {
+            return [
+                'success' => "Account is already synced",
+            ];
+        }
+
+        $connector =  Connector::create(Server::getParams((int)$params['serverid']));
+        $userResource = new UserResource($connector);
+        $solusUser = $userResource->getUserByEmail($params['clientsdetails']['email']);
+        if (!$solusUser) {
+            throw new Exception(Language::trans('solusiovps_error_user_not_found'));
+        }
+
+        $serverResource = new ServerResource($connector);
+        $allServersOfUser = $serverResource->getAllByUser($solusUser['id']);
+
+        foreach ($allServersOfUser as $server) {
+            if ($server['name'] == $params['domain']) {
+                SolusServer::create([
+                    'service_id' => $params['serviceid'],
+                    'server_id' => (int)Arr::get($server, 'id', []),
+                    'payload' => json_encode($server),
+                ]);
+                return [
+                    'success' => "Account has been synced correctly"
+                ];
+            }
+        }
+        return [
+            'Success' => "Unable to find the service in SolusIO"
+        ];
+    } catch (Exception $e) {
+        return [
+            'success'  => false,
+            'error' => $e->getMessage(),
+        ];
     }
 }

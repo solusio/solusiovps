@@ -30,6 +30,11 @@ class ServerResource extends ApiResource
         return $this->processResponse($this->connector->get("servers/{$id}"));
     }
 
+    public function listServerPage(int $page): array
+    {
+        return $this->processResponse($this->connector->get("servers?page=$page"));
+    }
+
     public function getAllByUser(int $userId): array
     {
         $response = $this->processResponse($this->connector->get("servers", [
