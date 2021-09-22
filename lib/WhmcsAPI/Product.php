@@ -17,6 +17,9 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
  */
 class Product
 {
+    public const MODULE_NAME = 'solusiovps';
+    private const CONFIG_OPTIONS_TYPE = 'configoptions';
+
     public static function updateDomain(int $serviceId, string $domain): void
     {
         localAPI('UpdateClientProduct', [
@@ -30,9 +33,18 @@ class Product
         $upgrade = Upgrade::getById($upgradeId);
         $serviceId = (int) $upgrade->relid;
 
+        if ($upgrade->type !== self::CONFIG_OPTIONS_TYPE) {
+            return;
+        }
+
         list($newProductId, $paymentType) = explode(',', $upgrade->newvalue);
 
         $newProduct = ProductModel::getById($newProductId);
+
+        if (empty($newProduct) || $newProduct->type !== self::MODULE_NAME) {
+            return;
+        }
+
         $newPlanId = (int) $newProduct->configoption1;
         $hosting = Hosting::getByServiceId($serviceId);
         $server = SolusServer::getByServiceId($serviceId);
