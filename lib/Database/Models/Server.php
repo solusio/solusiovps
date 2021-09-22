@@ -4,6 +4,7 @@
 
 namespace WHMCS\Module\Server\SolusIoVps\Database\Models;
 
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Product;
 use WHMCS\Database\Capsule as DB;
 
 /**
@@ -28,9 +29,9 @@ class Server
         ];
     }
 
-    public static function getServerIds(): array
+    public static function getModuleServers(): array
     {
-        $result = DB::table(self::TABLE)->pluck('id');
+        $result = DB::table(self::TABLE)->whereType(Product::MODULE_NAME)->pluck('id');
 
         return collect($result)->all();
     }
