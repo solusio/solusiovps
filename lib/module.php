@@ -7,7 +7,6 @@ use \GuzzleHttp\Exception\RequestException;
 use WHMCS\Module\Server\SolusIoVps\Exceptions\SolusException;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
-use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\DataWrapper;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ApplicationResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LimitGroupResource;
@@ -137,7 +136,7 @@ function solusiovps_PlanLoader(array $params): array
         $planResource = new PlanResource(Connector::create($params));
         $result = [];
 
-        foreach (DataWrapper::wrap($planResource->list()) as $item) {
+        foreach ($planResource->list() as $item) {
             $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
         }
 
@@ -163,7 +162,7 @@ function solusiovps_OsImageLoader(array $params): array
             0 => Language::trans('solusiovps_config_option_none'),
         ];
 
-        foreach (DataWrapper::wrap($osImageResource->list()) as $item) {
+        foreach ($osImageResource->list() as $item) {
             foreach ($item['versions'] as $version) {
                 $result[Arr::get($version, 'id')] = Arr::get($item, 'icon.name', Arr::get($item, 'name')) . ' ' . Arr::get($version, 'version');
             }
@@ -188,7 +187,7 @@ function solusiovps_LocationLoader(array $params): array
         $locationResource = new LocationResource(Connector::create($params));
         $result = [];
 
-        foreach (DataWrapper::wrap($locationResource->list()) as $item) {
+        foreach ($locationResource->list() as $item) {
             $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
         }
 
@@ -214,7 +213,7 @@ function solus_ApplicationLoader(array $params): array
             0 => Language::trans('solusiovps_config_option_none'),
         ];
 
-        foreach (DataWrapper::wrap($applicationResource->list()) as $item) {
+        foreach ($applicationResource->list() as $item) {
             $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
         }
 
@@ -240,7 +239,7 @@ function solus_RoleLoader(array $params): array
             0 => Language::trans('solusiovps_config_option_none'),
         ];
 
-        foreach (DataWrapper::wrap($roleResource->list()) as $item) {
+        foreach ($roleResource->list() as $item) {
             $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
         }
 
@@ -266,7 +265,7 @@ function solus_LimitGroupLoader(array $params): array
             0 => Language::trans('solusiovps_config_option_none'),
         ];
 
-        foreach (DataWrapper::wrap($limitGroupResource->list()) as $item) {
+        foreach ($limitGroupResource->list() as $item) {
             $result[Arr::get($item, 'id')] = Arr::get($item, 'name');
         }
 
@@ -645,25 +644,20 @@ function solusiovps_ListAccounts(array $params)
         $serverParams = Server::getParams((int)$params['serverid']);
         $serverResource = new ServerResource(Connector::create($serverParams));
 
-        $current_page = 1;
-        do {
-            $serversOnPage = $serverResource->listServerPage($current_page);
-            $lastPage = Arr::get($serversOnPage, 'meta', [])['last_page'];
+        $servers = $serverResource->list();
 
-            foreach (Arr::get($serversOnPage, 'data', []) as $server) {
-                $accounts[] = [
-                    'email' => $server['user']['email'],
-                    'username' => $server['user']['email'],
-                    'domain' => $server['name'],
-                    'uniqueIdentifier' => $server['name'],
-                    'product' => $server['plan']['name'],
-                    'primaryip' => $server['ip_addresses']['ipv4'][0]['ip'],
-                    'created' => Carbon::parse($server['created_at'])->format('Y-m-d H:i:s'),
-                    'status' => !$server['is_suspended'] ? Status::ACTIVE : Status::SUSPENDED,
-                ];
-            }
-            $current_page++;
-        } while ($current_page <= $lastPage);
+        foreach ($servers as $server) {
+            $accounts[] = [
+                'email' => $server['user']['email'],
+                'username' => $server['user']['email'],
+                'domain' => $server['name'],
+                'uniqueIdentifier' => $server['name'],
+                'product' => $server['plan']['name'],
+                'primaryip' => $server['ip_addresses']['ipv4'][0]['ip'],
+                'created' => Carbon::parse($server['created_at'])->format('Y-m-d H:i:s'),
+                'status' => !$server['is_suspended'] ? Status::ACTIVE : Status::SUSPENDED,
+            ];
+        }
 
         return [
             'success' => true,

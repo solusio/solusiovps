@@ -4,16 +4,18 @@
 
 namespace WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources;
 
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\Traits\ListRequest;
+
 /**
  * Class ServerResource
  * @package WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources
  */
 class ServerResource extends ApiResource
 {
-    /**
-     * @param array $data
-     * @return array
-     */
+    use ListRequest;
+
+    const ENTITY = 'servers';
+
     public function create(array $data): array
     {
         return $this->processResponse($this->connector->post("servers", [
@@ -21,18 +23,9 @@ class ServerResource extends ApiResource
         ]));
     }
 
-    /**
-     * @param int $id
-     * @return array
-     */
     public function get(int $id): array
     {
         return $this->processResponse($this->connector->get("servers/{$id}"));
-    }
-
-    public function listServerPage(int $page): array
-    {
-        return $this->processResponse($this->connector->get("servers?page=$page"));
     }
 
     public function getAllByUser(int $userId): array
@@ -48,10 +41,6 @@ class ServerResource extends ApiResource
         return $response['data'];
     }
 
-    /**
-     * @param int $id
-     * @return array
-     */
     public function delete(int $id): array
     {
         return $this->processResponse($this->connector->delete("servers/{$id}"));

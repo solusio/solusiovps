@@ -4,17 +4,33 @@
 
 namespace WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\Traits;
 
+use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
+
 /**
  * Trait ListRequest
  * @package WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\Traits
  */
 trait ListRequest
 {
-    /**
-     * @return array
-     */
     public function list(): array
     {
-        return $this->processResponse($this->connector->get(static::ENTITY));
+        $currentPage = 1;
+        $results = [];
+
+        do {
+            $response = $this->processResponse($this->connector->get(
+                sprintf('%s?page=%d', self::ENTITY, $currentPage)
+            ));
+            $lastPage = (int) Arr::get(
+                $response,
+                'meta',
+                ['last_page' => $currentPage]
+            )['last_page'];
+
+            $results = array_merge($results, Arr::get($response, 'data', []));
+            $currentPage++;
+        } while ($currentPage <= $lastPage);
+
+        return $results;
     }
 }
