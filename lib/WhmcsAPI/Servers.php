@@ -16,7 +16,7 @@ class Servers
 {
     public static function getValidParams(): array
     {
-        $serverIds = Server::getServerIds();
+        $serverIds = Server::getModuleServers();
 
         foreach ($serverIds as $serverId) {
             $serverParams = Server::getParams($serverId);
