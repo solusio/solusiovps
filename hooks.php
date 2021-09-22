@@ -55,6 +55,10 @@ add_hook('ClientDetailsValidation', 1, function(array $params) {
     try {
         $userId = null;
 
+        if (empty($params['email'])) {
+            return [];
+        }
+
         // If updating user via admin area
         if (isset($params['userid'])) {
             $userId = $params['userid'];
@@ -76,7 +80,7 @@ add_hook('ClientDetailsValidation', 1, function(array $params) {
         $serverParams = Servers::getValidParams();
 
         if (empty($serverParams)) {
-            throw new Exception('No valid WHMCS server found');
+            return [];
         }
 
         $userResource = new UserResource(Connector::create($serverParams));
@@ -94,10 +98,14 @@ add_hook('ClientDetailsValidation', 1, function(array $params) {
 
 add_hook('ClientEdit', 1, function(array $params) {
     try {
+        if (empty($params['email'])) {
+            return;
+        }
+
         $serverParams = Servers::getValidParams();
 
         if (empty($serverParams)) {
-            throw new Exception('No valid WHMCS server found');
+            return;
         }
 
         $userResource = new UserResource(Connector::create($serverParams));
