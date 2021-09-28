@@ -9,6 +9,8 @@ namespace WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources;
  */
 class UserResource extends ApiResource
 {
+    public const STATUS_ACTIVE = 'Active';
+
     /**
      * @param array $data
      * @return int SolusIO user ID

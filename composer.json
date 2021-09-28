@@ -17,14 +17,16 @@
     }
   ],
   "autoload": {
-    "files": [
-      "lib/module.php"
-    ],
     "psr-4": {
-      "WHMCS\\Module\\Server\\SolusIoVps\\": "lib/"
+      "Tests\\": "tests/",
+      "WHMCS\\Module\\Server\\SolusIoVps\\": "modules/servers/solusiovps/lib"
     }
   },
   "require": {
     "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9",
+    "mockery/mockery": "^1.4"
   }
 }
