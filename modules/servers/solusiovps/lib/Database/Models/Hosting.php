@@ -4,6 +4,7 @@
 
 namespace WHMCS\Module\Server\SolusIoVps\Database\Models;
 
+use LogicException;
 use WHMCS\Database\Capsule as DB;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 
@@ -32,7 +33,7 @@ class Hosting
      */
     public static function updateByServiceId(int $id, array $data): void
     {
-        DB::table('tblhosting')->where('id', $id)->update($data);
+        DB::table(self::TABLE)->where('id', $id)->update($data);
     }
 
     public static function syncWithSolusServer(int $serviceId, array $data, bool $updateDomain): void
@@ -57,6 +58,6 @@ class Hosting
             $updateData['domain'] = $data['name'];
         }
 
-        Hosting::updateByServiceId($serviceId, $updateData);
+        self::updateByServiceId($serviceId, $updateData);
     }
 }

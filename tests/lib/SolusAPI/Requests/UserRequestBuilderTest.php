@@ -57,23 +57,23 @@ class UserRequestBuilderTest extends TestCase
     {
         $builder = UserRequestBuilder::fromWHMCSCreateAccountParams($this->params);
 
-        $this->assertEquals(json_encode($builder->getCreateRequest()), json_encode([
+        self::assertEquals($builder->getCreateRequest(), [
             'email' => 'test_email',
             'password' => 'test_pass',
             'status' => UserResource::STATUS_ACTIVE,
             'billing_user_id' => 1,
             'limit_group_id' => 1,
             'roles' => [ 1 ],
-        ]));
+        ]);
     }
 
     public function testFromWHMCSCreateAccountParamsUpdateRequest(): void
     {
         $builder = UserRequestBuilder::fromWHMCSCreateAccountParams($this->params);
 
-        $this->assertEquals(json_encode($builder->getUpdateRequest()), json_encode([
+        self::assertEquals($builder->getUpdateRequest(), [
             'status' => UserResource::STATUS_ACTIVE,
             'billing_user_id' => 1,
-        ]));
+        ]);
     }
 }

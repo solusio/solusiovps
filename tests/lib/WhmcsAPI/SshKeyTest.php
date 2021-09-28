@@ -10,9 +10,6 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\SshKeyResource;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\SshKey;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class SshKeyTest extends AbstractModuleTest
 {
     private int $sshKeyId = 1;
@@ -34,7 +31,7 @@ class SshKeyTest extends AbstractModuleTest
     public function testCreateKeyExist(): void
     {
         $this->solusSshKey->shouldReceive('getIdByKey')->andReturn($this->sshKeyId);
-        $this->assertEquals($this->sshKeyId, SshKey::create([], $this->sshKey, $this->solusUserId));
+        self::assertEquals($this->sshKeyId, SshKey::create([], $this->sshKey, $this->solusUserId));
     }
 
     public function testCreateKeyNotExist(): void
@@ -50,6 +47,6 @@ class SshKeyTest extends AbstractModuleTest
             'solus_key_id' => $this->sshKeyId,
             'key_hash' => $hashedKey,
         ]);
-        $this->assertEquals($this->sshKeyId, SshKey::create([], $this->sshKey, $this->solusUserId));
+        self::assertEquals($this->sshKeyId, SshKey::create([], $this->sshKey, $this->solusUserId));
     }
 }

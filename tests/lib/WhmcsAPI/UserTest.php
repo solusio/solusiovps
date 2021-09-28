@@ -73,7 +73,7 @@ class UserTest extends AbstractModuleTest
             Mockery::getContainer()->mockery_getExpectationCount()
         );
 
-        $this->assertEquals($this->solusUserId, User::syncWithSolusUser($this->userResource, $this->builder));
+        self::assertEquals($this->solusUserId, User::syncWithSolusUser($this->userResource, $this->builder));
     }
 
     public function testSyncWithSolusUserUpdate(): void
@@ -92,7 +92,7 @@ class UserTest extends AbstractModuleTest
             Mockery::getContainer()->mockery_getExpectationCount()
         );
 
-        $this->assertEquals($this->solusUserId, User::syncWithSolusUser($this->userResource, $this->builder));
+        self::assertEquals($this->solusUserId, User::syncWithSolusUser($this->userResource, $this->builder));
     }
 
 
@@ -111,6 +111,6 @@ class UserTest extends AbstractModuleTest
             Mockery::getContainer()->mockery_getExpectationCount()
         );
 
-        $this->assertEquals($this->solusUserId, User::syncWithSolusUser($this->userResource, $this->builder));
+        self::assertEquals($this->solusUserId, User::syncWithSolusUser($this->userResource, $this->builder));
     }
 }

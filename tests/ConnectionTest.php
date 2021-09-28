@@ -9,12 +9,8 @@ use Mockery;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ProjectResource;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class ConnectionTest extends AbstractModuleTest
 {
-    private int $serverId = 1;
     private array $params;
     private Mockery\MockInterface $projectResource;
 
@@ -37,7 +33,7 @@ class ConnectionTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('TestConnection'), $this->params);
 
-        $this->assertEquals(json_encode(['success' => true, 'error' => '']), json_encode($result));
+        self::assertEquals(['success' => true, 'error' => ''], $result);
     }
 
     public function testConnectionNegative(): void
@@ -46,6 +42,6 @@ class ConnectionTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('TestConnection'), $this->params);
 
-        $this->assertEquals(json_encode(['success' => false, 'error' => 'bad request']), json_encode($result));
+        self::assertEquals(['success' => false, 'error' => 'bad request'], $result);
     }
 }

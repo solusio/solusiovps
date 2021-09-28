@@ -10,9 +10,6 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class UnsuspendAccountTest extends AbstractModuleTest
 {
     private int $serverId = 1;
@@ -43,7 +40,7 @@ class UnsuspendAccountTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('UnsuspendAccount'), $this->params);
 
-        $this->assertEquals(Language::trans('solusiovps_error_server_not_found'), $result);
+        self::assertEquals(Language::trans('solusiovps_error_server_not_found'), $result);
     }
 
     public function testUnsuspendExistingServer(): void
@@ -55,6 +52,6 @@ class UnsuspendAccountTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('UnsuspendAccount'), $this->params);
 
-        $this->assertEquals('success', $result);
+        self::assertEquals('success', $result);
     }
 }

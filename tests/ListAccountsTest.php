@@ -9,9 +9,6 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\Server;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class ListAccountsTest extends AbstractModuleTest
 {
     private int $serverId = 1;
@@ -81,7 +78,7 @@ class ListAccountsTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('ListAccounts'), $this->params);
 
-        $this->assertEquals(json_encode([
+        self::assertEquals([
             'success' => true,
             'accounts' => [
                 [
@@ -95,7 +92,7 @@ class ListAccountsTest extends AbstractModuleTest
                     'status' => $status,
                 ]
             ],
-        ]), json_encode($result));
+        ], $result);
     }
 
     public function testListAccountsNegative(): void
@@ -104,7 +101,7 @@ class ListAccountsTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('ListAccounts'), $this->params);
 
-        $this->assertEquals(false, $result['success']);
-        $this->assertEquals('bad request', $result['error']);
+        self::assertEquals(false, $result['success']);
+        self::assertEquals('bad request', $result['error']);
     }
 }

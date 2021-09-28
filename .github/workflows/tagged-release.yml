@@ -26,7 +26,9 @@ jobs:
       - name: Create release file
         run: |
           rm -rf .git
-          zip -r solusiovps-${{ steps.get_version.outputs.SOURCE_TAG }}.zip .
+          sudo mv vendor modules/servers/solusiovps
+          sudo mv node_modules modules/servers/solusiovps
+          zip -r solusiovps-${{ steps.get_version.outputs.SOURCE_TAG }}.zip modules
       - uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}

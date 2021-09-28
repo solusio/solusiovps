@@ -17,14 +17,14 @@ class User
 
         if (empty($solusUser)) {
             return $userResource->create($request->getCreateRequest());
-        } else {
-            $solusUserId = $solusUser['id'];
-
-            if ((int)$solusUser['billing_user_id'] !== $whmcsUserId) {
-                $userResource->updateUser($solusUserId, $request->getUpdateRequest());
-            }
-
-            return $solusUserId;
         }
+
+        $solusUserId = $solusUser['id'];
+
+        if ((int)$solusUser['billing_user_id'] !== $whmcsUserId) {
+            $userResource->updateUser($solusUserId, $request->getUpdateRequest());
+        }
+
+        return $solusUserId;
     }
 }

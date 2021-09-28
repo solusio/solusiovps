@@ -10,9 +10,6 @@ use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\ClientArea;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Product;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Servers;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class HooksTest extends AbstractModuleTest
 {
     public function testAfterUpgrade(): void
@@ -24,12 +21,12 @@ class HooksTest extends AbstractModuleTest
             Mockery::getContainer()->mockery_getExpectationCount()
         );
 
-        $this->assertNull(call_user_func('createAddHook')([ 'upgradeid' => 1 ]));
+        self::assertNull(call_user_func('createAddHook')([ 'upgradeid' => 1 ]));
     }
 
     public function testClientDetailsValidationChangeEmptyEmail(): void
     {
-        $this->assertEquals([], call_user_func('createClientDetailsValidationHook')([ 'email' => '' ]));
+        self::assertEquals([], call_user_func('createClientDetailsValidationHook')([ 'email' => '' ]));
     }
 
     public function testClientDetailsValidationNotChangingEmailAdminArea(): void
@@ -43,7 +40,7 @@ class HooksTest extends AbstractModuleTest
         $client->shouldReceive('findOrFail')->with($params['userid'])->andReturnSelf();
         $client->email = $params['email'];
 
-        $this->assertEquals([], call_user_func('createClientDetailsValidationHook')($params));
+        self::assertEquals([], call_user_func('createClientDetailsValidationHook')($params));
     }
 
     public function testClientDetailsValidationNotChangingEmailClientArea(): void
@@ -60,7 +57,7 @@ class HooksTest extends AbstractModuleTest
         $client->shouldReceive('findOrFail')->with($userId)->andReturnSelf();
         $client->email = $params['email'];
 
-        $this->assertEquals([], call_user_func('createClientDetailsValidationHook')($params));
+        self::assertEquals([], call_user_func('createClientDetailsValidationHook')($params));
     }
 
     public function testClientDetailsValidationNoServer(): void
@@ -77,7 +74,7 @@ class HooksTest extends AbstractModuleTest
         $servers = Mockery::mock('overload:' . Servers::class);
         $servers->shouldReceive('getValidParams')->andReturn([]);
 
-        $this->assertEquals([], call_user_func('createClientDetailsValidationHook')($params));
+        self::assertEquals([], call_user_func('createClientDetailsValidationHook')($params));
     }
 
     public function testClientDetailsValidationEmailAlreadyTaken(): void
@@ -99,12 +96,12 @@ class HooksTest extends AbstractModuleTest
         $userResource= Mockery::mock('overload:' . UserResource::class);
         $userResource->shouldReceive('getUserByEmail')->andReturn(true);
 
-        $this->assertEquals('email is already taken', call_user_func('createClientDetailsValidationHook')($params));
+        self::assertEquals('email is already taken', call_user_func('createClientDetailsValidationHook')($params));
     }
 
     public function testClientEditEmptyEmail(): void
     {
-        $this->assertNull(call_user_func('createClientEditHook')([ 'email' => '' ]));
+        self::assertNull(call_user_func('createClientEditHook')([ 'email' => '' ]));
     }
 
     public function testClientEditNoServer(): void
@@ -112,7 +109,7 @@ class HooksTest extends AbstractModuleTest
         $servers = Mockery::mock('overload:' . Servers::class);
         $servers->shouldReceive('getValidParams')->andReturn([]);
 
-        $this->assertNull(call_user_func('createClientEditHook')([ 'email' => 'new_mail@mail.com' ]));
+        self::assertNull(call_user_func('createClientEditHook')([ 'email' => 'new_mail@mail.com' ]));
     }
 
     public function testClientEditNoSolusUser(): void
@@ -134,7 +131,7 @@ class HooksTest extends AbstractModuleTest
             ->andReturn(null);
         $userResource->shouldNotReceive('patchUser');
 
-        $this->assertNull(call_user_func('createClientEditHook')($params));
+        self::assertNull(call_user_func('createClientEditHook')($params));
     }
 
     public function testClientEditChangeUserEmail(): void
@@ -158,6 +155,6 @@ class HooksTest extends AbstractModuleTest
         $userResource->shouldReceive('patchUser')
             ->with($userId, [ 'email' => $params['email'] ]);
 
-        $this->assertNull(call_user_func('createClientEditHook')($params));
+        self::assertNull(call_user_func('createClientEditHook')($params));
     }
 }

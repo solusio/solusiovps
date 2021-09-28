@@ -44,13 +44,13 @@ class ConfigParamsTest extends AbstractModuleTest
     public function testPlanLoader(array $response, array $expected): void
     {
         $func = self::getModuleFunction('PlanLoader');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $planResource = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\PlanResource');
         $planResource->shouldReceive('list')->once()->andReturn($response);
 
         $result = call_user_func($func, []);
-        $this->assertEquals([], array_diff_assoc($result, $expected));
+        self::assertEquals($result, $expected);
     }
 
     public function osImageLoaderProvider(): array
@@ -110,13 +110,13 @@ class ConfigParamsTest extends AbstractModuleTest
     public function testOsImageLoader(array $response, array $expected): void
     {
         $func = self::getModuleFunction('OsImageLoader');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $osImageResource = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\OsImageResource');
         $osImageResource->shouldReceive('list')->once()->andReturn($response);
 
         $result = call_user_func($func, []);
-        $this->assertEquals([], array_diff_assoc($result, $expected));
+        self::assertEquals($result, $expected);
     }
 
     public function locationLoaderProvider(): array
@@ -147,13 +147,13 @@ class ConfigParamsTest extends AbstractModuleTest
     public function testLocationLoader(array $response, array $expected): void
     {
         $func = self::getModuleFunction('LocationLoader');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $planResource = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LocationResource');
         $planResource->shouldReceive('list')->once()->andReturn($response);
 
         $result = call_user_func($func, []);
-        $this->assertEquals([], array_diff_assoc($result, $expected));
+        self::assertEquals($result, $expected);
     }
 
     public function applicationLoaderProvider(): array
@@ -185,13 +185,13 @@ class ConfigParamsTest extends AbstractModuleTest
     public function testApplicationLoader(array $response, array $expected): void
     {
         $func = self::getModuleFunction('ApplicationLoader');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $planResource = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ApplicationResource');
         $planResource->shouldReceive('list')->once()->andReturn($response);
 
         $result = call_user_func($func, []);
-        $this->assertEquals([], array_diff_assoc($result, $expected));
+        self::assertEquals($result, $expected);
     }
 
     public function roleLoaderProvider(): array
@@ -223,13 +223,13 @@ class ConfigParamsTest extends AbstractModuleTest
     public function testRoleLoader(array $response, array $expected): void
     {
         $func = self::getModuleFunction('RoleLoader');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $planResource = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\RoleResource');
         $planResource->shouldReceive('list')->once()->andReturn($response);
 
         $result = call_user_func($func, []);
-        $this->assertEquals([], array_diff_assoc($result, $expected));
+        self::assertEquals($result, $expected);
     }
 
     public function limitGroupLoaderProvider(): array
@@ -261,12 +261,12 @@ class ConfigParamsTest extends AbstractModuleTest
     public function testLimitGroupLoader(array $response, array $expected): void
     {
         $func = self::getModuleFunction('LimitGroupLoader');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $planResource = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LimitGroupResource');
         $planResource->shouldReceive('list')->once()->andReturn($response);
 
         $result = call_user_func($func, []);
-        $this->assertEquals([], array_diff_assoc($result, $expected));
+        self::assertEquals($result, $expected);
     }
 }

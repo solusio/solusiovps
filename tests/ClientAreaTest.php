@@ -11,9 +11,6 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class ClientAreaTest extends AbstractModuleTest
 {
     private int $serverId = 1;
@@ -83,13 +80,13 @@ class ClientAreaTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('ClientArea'), $params);
 
-        $this->assertEquals(json_encode($result), json_encode([
+        self::assertEquals($result, [
             'tabOverviewReplacementTemplate' => 'error.tpl',
             'templateVariables' => [
                 'title' => Language::trans($title),
                 'message' => Language::trans($message),
             ],
-        ]));
+        ]);
     }
 
     public function testLoadServerPageServer(): void
@@ -118,7 +115,7 @@ class ClientAreaTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('ClientArea'), $this->params);
 
-        $this->assertEquals(json_encode($result), json_encode([
+        self::assertEquals($result, [
             'tabOverviewReplacementTemplate' => 'templates/overview.tpl',
             'templateVariables' => [
                 'data' => [
@@ -130,6 +127,6 @@ class ClientAreaTest extends AbstractModuleTest
                     'boot_mode' => 'resque',
                 ],
             ],
-        ]));
+        ]);
     }
 }

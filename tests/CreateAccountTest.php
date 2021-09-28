@@ -77,7 +77,7 @@ class CreateAccountTest extends AbstractModuleTest
 
         Mockery::getConfiguration()->setConstantsMap([
             'WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\UserResource' => [
-                'STATUS_ACTIVE' => 'Active',
+                'STATUS_ACTIVE' => 'active',
             ],
             'WHMCS\Module\Server\SolusIoVps\Database\Models\Hosting' => [
                 'STATUS_PENDING' => 'Pending',
@@ -91,13 +91,13 @@ class CreateAccountTest extends AbstractModuleTest
     public function testCreateAccountStatusNotPending(): void
     {
         $result = call_user_func(self::getModuleFunction('CreateAccount'), ['status' => 'Active']);
-        $this->assertEquals(Language::trans('solusiovps_error_server_already_created'), $result);
+        self::assertEquals(Language::trans('solusiovps_error_server_already_created'), $result);
     }
 
     public function testCreateAccount(): void
     {
         $func = self::getModuleFunction('CreateAccount');
-        $this->assertTrue(function_exists($func));
+        self::assertTrue(function_exists($func));
 
         $params = $this->params;
         $password = 'pass';
@@ -166,6 +166,6 @@ class CreateAccountTest extends AbstractModuleTest
         ]);
         $result = call_user_func(self::getModuleFunction('CreateAccount'), $this->params);
 
-        $this->assertEquals('success', $result);
+        self::assertEquals('success', $result);
     }
 }

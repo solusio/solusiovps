@@ -16,6 +16,10 @@ global $CONFIG;
 function add_hook(string $name, int $priority, $callback) {
 }
 
+function decrypt(string $data) {
+    return $data;
+}
+
 $CONFIG = [ 'Language' => 'english' ];
 require_once __DIR__ . '/../modules/servers/solusiovps/solusiovps.php';
 require_once __DIR__ . '/../modules/servers/solusiovps/hooks.php';

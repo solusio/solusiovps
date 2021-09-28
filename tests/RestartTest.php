@@ -11,9 +11,6 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class RestartTest extends AbstractModuleTest
 {
     private int $serverId = 1;
@@ -47,7 +44,7 @@ class RestartTest extends AbstractModuleTest
         $serverResource = Mockery::mock('overload:' . ServerResource::class);
         $serverResource->shouldReceive('restart');
 
-        $this->assertEquals(
+        self::assertEquals(
             'success',
             call_user_func(self::getModuleFunction('restart'), $this->params)
         );
@@ -57,7 +54,7 @@ class RestartTest extends AbstractModuleTest
     {
         $this->hosting->shouldReceive('getByServiceId')->andThrow(new \Exception('bad request'));
 
-        $this->assertEquals(
+        self::assertEquals(
             'bad request',
             call_user_func(self::getModuleFunction('restart'), $this->params)
         );

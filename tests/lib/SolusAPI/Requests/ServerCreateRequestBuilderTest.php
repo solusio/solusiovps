@@ -57,7 +57,7 @@ class ServerCreateRequestBuilderTest extends TestCase
     {
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($this->params);
 
-        $this->assertEquals(json_encode($builder->get()), json_encode([
+        self::assertEquals($builder->get(), [
             'name' => 'test.domain.ltd',
             'plan' => 1,
             'location' => 1,
@@ -65,14 +65,14 @@ class ServerCreateRequestBuilderTest extends TestCase
             'fqdns' => [ 'test.domain.ltd' ],
             'application' => 1,
             'application_data' => [''],
-        ]));
+        ]);
     }
 
     public function testBuildFromCreateAccountParamsWithSshKeys(): void
     {
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($this->params);
 
-        $this->assertEquals(json_encode($builder->withSshKeys([ 1 ])->get()), json_encode([
+        self::assertEquals($builder->withSshKeys([ 1 ])->get(), [
             'name' => 'test.domain.ltd',
             'plan' => 1,
             'location' => 1,
@@ -81,7 +81,7 @@ class ServerCreateRequestBuilderTest extends TestCase
             'application' => 1,
             'application_data' => [''],
             'ssh_keys' => [ 1 ],
-        ]));
+        ]);
     }
 
     public function testBuildFromCreateAccountParamsWithOperatingSystem(): void
@@ -92,7 +92,7 @@ class ServerCreateRequestBuilderTest extends TestCase
 
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($params);
 
-        $this->assertEquals(json_encode($builder->get()), json_encode([
+        self::assertEquals($builder->get(), [
             'name' => 'test.domain.ltd',
             'plan' => 1,
             'location' => 1,
@@ -100,7 +100,7 @@ class ServerCreateRequestBuilderTest extends TestCase
             'fqdns' => [ 'test.domain.ltd' ],
             'os' => 1,
             'user_data' => 'user_data',
-        ]));
+        ]);
     }
 
     public function testBuildFromCreateAccountParamsWithoutUserData(): void
@@ -111,14 +111,14 @@ class ServerCreateRequestBuilderTest extends TestCase
 
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($params);
 
-        $this->assertEquals(json_encode($builder->get()), json_encode([
+        self::assertEquals($builder->get(), [
             'name' => 'test.domain.ltd',
             'plan' => 1,
             'location' => 1,
             'password' => 'test_pass',
             'fqdns' => [ 'test.domain.ltd' ],
             'os' => 1,
-        ]));
+        ]);
     }
 
     public function testBuildFromCreateAccountParamsWithOperatingSystemInConfigOpts(): void
@@ -129,7 +129,7 @@ class ServerCreateRequestBuilderTest extends TestCase
 
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($params);
 
-        $this->assertEquals(json_encode($builder->get()), json_encode([
+        self::assertEquals($builder->get(), [
             'name' => 'test.domain.ltd',
             'plan' => 1,
             'location' => 1,
@@ -137,6 +137,6 @@ class ServerCreateRequestBuilderTest extends TestCase
             'fqdns' => [ 'test.domain.ltd' ],
             'os' => 1,
             'user_data' => 'user_data',
-        ]));
+        ]);
     }
 }

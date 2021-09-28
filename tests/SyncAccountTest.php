@@ -11,9 +11,6 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\UserResource;
 
-/**
- * @runTestsInSeparateProcesses
- */
 class SyncAccountTest extends AbstractModuleTest
 {
     private int $userId = 1;
@@ -68,7 +65,7 @@ class SyncAccountTest extends AbstractModuleTest
         ]);
 
         $result = call_user_func(self::getModuleFunction('syncAccount'), $this->params);
-        $this->assertEquals(
+        self::assertEquals(
             'Account has been synced correctly',
             $result['success']
         );
@@ -80,7 +77,7 @@ class SyncAccountTest extends AbstractModuleTest
 
         $result = call_user_func(self::getModuleFunction('syncAccount'), $this->params);
 
-        $this->assertEquals(false, $result['success']);
-        $this->assertEquals('bad request', $result['error']);
+        self::assertEquals(false, $result['success']);
+        self::assertEquals('bad request', $result['error']);
     }
 }
