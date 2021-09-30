@@ -2,8 +2,16 @@
     "name": "solusiovps",
     "description": "SolusIO WHMCS VPS Provisioning module",
     "license": "Apache-2.0",
+    "autoload": {
+        "classmap": [
+            "modules/servers/solusiovps/"
+        ]
+    },
     "dependencies": {
         "@novnc/novnc": "^1.2.0",
         "chart.js": "^2.9.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5.9"
     }
 }

@@ -18,7 +18,7 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 class Product
 {
     public const MODULE_NAME = 'solusiovps';
-    private const CONFIG_OPTIONS_TYPE = 'configoptions';
+    public const CONFIG_OPTIONS_TYPE = 'configoptions';
 
     public static function updateDomain(int $serviceId, string $domain): void
     {

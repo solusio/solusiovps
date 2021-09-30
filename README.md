@@ -14,6 +14,10 @@ The module allows you to do the following virtual server actions:
 * boot
 * shutdown
 
+## Requirements
+
+Minimum required **PHP** version is 7.4.
+
 ## Installation
 
 * Download the latest package from our [releases page](https://github.com/solusio/solusiovps/releases)

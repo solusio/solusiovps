@@ -24,6 +24,11 @@ class ProductConfigOption
             ->where('tblproductconfigoptions.optionname', $optionName)
             ->get();
 
+        return self::extractProductOptions($rows);
+    }
+
+    public static function extractProductOptions($rows): array
+    {
         $options = [];
 
         foreach ($rows as $row) {
