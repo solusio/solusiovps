@@ -27,7 +27,7 @@ Minimum required **PHP** version is 7.4.
 
 Open the Account page in the SolusIO user-area to generate an API Token.
 
-![Account](./docs/account.png)
+![Account](./modules/servers/solusiovps/docs/account.png)
 
 Configure SolusIO API access by adding a new server in WHMCS. Required fields are `Hostname` and `Password`.
 
@@ -35,15 +35,15 @@ Configure SolusIO API access by adding a new server in WHMCS. Required fields ar
 
 SolusIO API Token should be saved in the password field.
 
-![Server](./docs/server.png)
+![Server](./modules/servers/solusiovps/docs/server.png)
 
 Create a server group in WHMCS and assign the server which was created on the previous step.
 
-![Server group](./docs/server-group.png)
+![Server group](./modules/servers/solusiovps/docs/server-group.png)
 
 ## Product Configuration
 
-![Product](./docs/product.png)
+![Product](./modules/servers/solusiovps/docs/product.png)
 
 Create a product in WHMCS and select `SolusIO VPS` as the linked module and the server group you configured previous.
 
@@ -55,7 +55,7 @@ Select the `Plan`, `Default Location` and `Default Operating System` or `Applica
 
 The module gives the ability to select a specific location on ordering of a product. This is done in the form of configurable options.
 
-![Location](./docs/option-location.png)
+![Location](./modules/servers/solusiovps/docs/option-location.png)
 
 Create a configurable option named `Location`. Add options with the following convention: `locationId|locationName`. This will take priority over selected location in product module settings.
 
@@ -63,7 +63,7 @@ Create a configurable option named `Location`. Add options with the following co
 
 The module gives the ability to select a specific operating system on ordering of a product. This is done in the form of configurable options.
 
-![Operating System](./docs/option-os.png)
+![Operating System](./modules/servers/solusiovps/docs/option-os.png)
 
 Create a configurable option named `Operating System`. Add options with the following convention: `osId|osName`. This will take priority over selected operating system in product module settings.
 
