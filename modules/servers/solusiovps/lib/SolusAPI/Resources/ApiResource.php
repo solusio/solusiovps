@@ -26,6 +26,11 @@ class ApiResource
         $this->connector = $connector;
     }
 
+    public function getConnector(): ClientInterface
+    {
+        return $this->connector;
+    }
+
     /**
      * @param $response
      * @return array

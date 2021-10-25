@@ -98,9 +98,10 @@ class ServerResource extends ApiResource
 
     public function changeHostname(int $id, string $hostname): array
     {
-        return $this->processResponse($this->connector->patch("servers/{$id}", [
+        return $this->processResponse($this->getConnector()->patch("servers/{$id}", [
             'json' => [
                 'name' => $hostname,
+                'fqdns' => [ $hostname ],
             ],
         ]));
     }
