@@ -8,6 +8,8 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\ProductConfigOption;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusSshKey;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\DefaultDomain;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
 
 final class ServerCreateRequestBuilder
 {
@@ -92,7 +94,7 @@ final class ServerCreateRequestBuilder
         }
 
         $builder = new self(
-            $params['domain'],
+            Arr::get($params, 'domain', ''),
             $params['password'],
             (int)$params['serviceid'],
             (int)Arr::get($params, 'configoption1'),
@@ -150,16 +152,23 @@ final class ServerCreateRequestBuilder
 
     public function get(): array
     {
+        $name = "vps-{$this->serviceId}";
         $request = [
-            'name' => "vps-{$this->serviceId}",
+            'name' => $name,
             'plan' => $this->planId,
             'location' => $this->locationId,
             'password' => $this->password,
         ];
 
+        $domainConfig = DefaultDomain::createFromConfig(Config::loadModuleConfig());
+
         if (!empty($this->domain)) {
             $request['name'] = $this->domain;
             $request['fqdns'] = [ $this->domain ];
+        } else if ($domainConfig->isEnabled()) {
+            $domain = $domainConfig->getDomainForName($name);
+            $request['name'] = $domain;
+            $request['fqdns'] = [ $domain ];
         }
 
         if ($this->isBackupsEnabled) {
