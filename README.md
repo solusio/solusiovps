@@ -23,7 +23,7 @@ Minimum required **PHP** version is 7.4.
 * Download the latest package from our [releases page](https://github.com/solusio/solusiovps/releases)
 * Extract the contents of the zip file to your WHMCS root directory
 
-## Configuration
+## Module setup with SolusIO server
 
 Open the Account page in the SolusIO user-area to generate an API Token.
 
@@ -76,3 +76,12 @@ Create a custom field named `SSH Key` and type `Text Area`.
 #### Applications
 
 Create corresponding product custom fields for applications with the same property names as defined in SolusIO.
+
+## Other configurations
+
+There are several options that can be configured within module config file `config.php`
+
+- `delete_solus_user` - request SolusIO user deletion when user account is terminated if the value is set to `true`
+- `default_domain` - configures the default domain template in case the hostname is not set during product creation with options
+  - `enabled` - specifies if feature is enabled
+  - `mask` - the domain template in format `*.domain.tld` where `*` will be replaced with `vps-{serviceId}` when product is created

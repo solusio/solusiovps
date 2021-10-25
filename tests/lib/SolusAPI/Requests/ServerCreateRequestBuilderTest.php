@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\ProductConfigOption;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ServerCreateRequestBuilder;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Config;
 
 /**
  * @runTestsInSeparateProcesses
@@ -63,6 +64,32 @@ class ServerCreateRequestBuilderTest extends TestCase
             'location' => 1,
             'password' => 'test_pass',
             'fqdns' => [ 'test.domain.ltd' ],
+            'application' => 1,
+            'application_data' => [''],
+        ]);
+    }
+
+    public function testBuildFromCreateAccountParamsWithDefaultDomain(): void
+    {
+        $config = Mockery::mock('overload:' . Config::class, 'Config');
+        $config->shouldReceive('loadModuleConfig')->andReturn([
+            'default_domain' => [
+                'enabled' => true,
+                'mask' => '*.example.com',
+            ],
+        ]);
+        $params = $this->params;
+        Arr::forget($params, 'domain');
+        $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($params);
+
+        $domain = sprintf('vps-%d.example.com', $this->params['serviceid']);
+
+        self::assertEquals($builder->get(), [
+            'name' => $domain,
+            'plan' => 1,
+            'location' => 1,
+            'password' => 'test_pass',
+            'fqdns' => [ $domain ],
             'application' => 1,
             'application_data' => [''],
         ]);
