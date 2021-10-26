@@ -39,7 +39,7 @@ class ProductTest extends AbstractModuleTest
         $newPlanId = 25;
         $this->upgrade->shouldReceive('getById')->with($this->upgradeId)
             ->andReturn((object)[
-                'type' => Product::CONFIG_OPTIONS_TYPE,
+                'type' => Product::PACKAGE_OPTIONS_TYPE,
                 'relid' => $this->relid,
                 'newvalue' => implode(',', [ (string)$this->newProductId, $this->paymentType ]),
             ]);
@@ -47,7 +47,7 @@ class ProductTest extends AbstractModuleTest
         $productModel = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\Database\Models\Product');
         $productModel->shouldReceive('getById')->with($this->newProductId)
             ->andReturn((object)[
-                'type' => Product::MODULE_NAME,
+                'servertype' => Product::MODULE_NAME,
                 'configoption1' => $newPlanId,
             ]);
 
@@ -78,14 +78,14 @@ class ProductTest extends AbstractModuleTest
     {
         $this->upgrade->shouldReceive('getById')->with($this->upgradeId)
             ->andReturn((object)[
-                'type' => Product::CONFIG_OPTIONS_TYPE,
+                'type' => Product::PACKAGE_OPTIONS_TYPE,
                 'relid' => $this->relid,
                 'newvalue' => implode(',', [ (string)$this->newProductId, $this->paymentType ]),
             ]);
 
         $productModel = Mockery::mock('overload:WHMCS\Module\Server\SolusIoVps\Database\Models\Product');
         $productModel->shouldReceive('getById')->with($this->newProductId)
-            ->andReturn((object)[ 'type' => 'other module' ]);
+            ->andReturn((object)[ 'servertype' => 'other module' ]);
         self::assertNull(Product::upgrade($this->upgradeId));
     }
 
@@ -94,7 +94,7 @@ class ProductTest extends AbstractModuleTest
 
         $this->upgrade->shouldReceive('getById')->with($this->upgradeId)
             ->andReturn((object)[
-                'type' => Product::CONFIG_OPTIONS_TYPE,
+                'type' => Product::PACKAGE_OPTIONS_TYPE,
                 'relid' => $this->relid,
                 'newvalue' => implode(',', [ (string)$this->newProductId, $this->paymentType ]),
             ]);
