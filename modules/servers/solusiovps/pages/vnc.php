@@ -27,7 +27,7 @@ $serverId = (int)$hosting->server;
 $serverParams = Server::getParams($serverId);
 $serverResource = new ServerResource(Connector::create($serverParams));
 $server = $serverResource->get($solusServer->server_id);
-$password = $server['data']['settings']['vnc']['password'];
+$password = $server['data']['settings']['vnc_password'] ?? $server['data']['settings']['vnc']['password'];
 $response = $serverResource->vncUp($solusServer->server_id);
 $url = 'wss://' . $serverParams['serverhostname'] . '/vnc?url=' . $response['url'];
 
