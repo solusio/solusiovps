@@ -166,4 +166,61 @@ class ServerCreateRequestBuilderTest extends TestCase
             'user_data' => 'user_data',
         ]);
     }
+
+    public function testBuildFromCreateAccountParamsWithUser(): void
+    {
+        $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($this->params);
+        $builder->withUser(42);
+
+        self::assertEquals($builder->get(), [
+            'name' => 'test.domain.ltd',
+            'plan' => 1,
+            'location' => 1,
+            'password' => 'test_pass',
+            'fqdns' => [ 'test.domain.ltd' ],
+            'application' => 1,
+            'application_data' => [''],
+            'user' => 42,
+        ]);
+    }
+
+    public function testBuildFromCreateAccountParamsWithCustomPlanConfigOptions(): void
+    {
+        $this->params['configoptions']['VCPU'] = 1;
+        $this->params['configoptions']['Memory'] = 2;
+        $this->params['configoptions']['Disk Space'] = 2;
+        $this->params['configoptions']['VCPU Units'] = 8;
+        $this->params['configoptions']['VCPU Limit'] = 10;
+        $this->params['configoptions']['IO Priority'] = 6;
+        $this->params['configoptions']['Swap'] = 4;
+        $this->params['configoptions']['Total traffic limit monthly'] = 5;
+
+        $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($this->params);
+
+        self::assertEquals($builder->get(), [
+            'name' => 'test.domain.ltd',
+            'plan' => 1,
+            'location' => 1,
+            'password' => 'test_pass',
+            'fqdns' => [ 'test.domain.ltd' ],
+            'application' => 1,
+            'application_data' => [''],
+            'custom_plan' => [
+                'params' => [
+                    'vcpu' => $this->params['configoptions']['VCPU'],
+                    'ram' => $this->params['configoptions']['Memory'] * 1024 * 1024,
+                    'disk' => $this->params['configoptions']['Disk Space'],
+                    'vcpu_units' => $this->params['configoptions']['VCPU Units'],
+                    'vcpu_limit' => $this->params['configoptions']['VCPU Limit'],
+                    'io_priority' => $this->params['configoptions']['IO Priority'],
+                    'swap' => $this->params['configoptions']['Swap'] * 1024 * 1024,
+                ],
+                'limits' => [
+                    'network_total_traffic' => [
+                        'limit' => $this->params['configoptions']['Total traffic limit monthly'],
+                    ],
+                ],
+            ],
+        ]);
+    }
 }

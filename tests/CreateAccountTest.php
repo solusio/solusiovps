@@ -124,6 +124,7 @@ class CreateAccountTest extends AbstractModuleTest
 
         $builder = Mockery::mock('overload:' . ServerCreateRequestBuilder::class);
         $builder->shouldReceive('fromWHMCSCreateAccountParams')->with($params)->andReturnSelf();
+        $builder->shouldReceive('withUser')->with($this->solusUserId)->andReturnSelf();
         $builder->shouldReceive('withSshKeys')->with([ $this->sshKeyId ])->andReturnSelf();
 
         $this->userResource->shouldReceive('getUserByEmail')
@@ -132,10 +133,7 @@ class CreateAccountTest extends AbstractModuleTest
             ->andReturn($this->existingSolusUser);
         $this->userResource->shouldReceive('updateUser')->andReturn(true);
 
-        $apiToken = 'token';
-        $this->userResource->shouldReceive('createToken')->with($this->solusUserId)->andReturn('token');
-
-        $this->connector->shouldReceive('create')->with($this->params, $apiToken)->andReturn(true);
+        $this->connector->shouldReceive('create')->with($this->params)->andReturn(true);
         $serverResource = Mockery::mock('overload:' . ServerResource::class);
 
         $createRequest = [

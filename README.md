@@ -53,19 +53,37 @@ Select the `Plan`, `Default Location` and `Default Operating System` or `Applica
 
 #### Locations
 
-The module gives the ability to select a specific location on ordering of a product. This is done in the form of configurable options.
+The module gives the ability to select a specific location on ordering of a product. You can manage the list of available locations in the Configurable Options.
 
 ![Location](./docs/option-location.png)
 
-Create a configurable option named `Location`. Add options with the following convention: `locationId|locationName`. This will take priority over selected location in product module settings.
+Create a configurable option named `Location`. Add options with the following convention: `locationId|locationName`. The option will have higher priority over the selected location in the Module Settings of a product.
 
 #### Operating Systems
 
-The module gives the ability to select a specific operating system on ordering of a product. This is done in the form of configurable options.
+The module gives the ability to select a specific operating system on ordering of a product. You can manage the list of available operating systems in the Configurable Options.
 
 ![Operating System](./docs/option-os.png)
 
-Create a configurable option named `Operating System`. Add options with the following convention: `osId|osName`. This will take priority over selected operating system in product module settings.
+Create a configurable option named `Operating System`. Add options with the following convention: `osId|osName`. The option will have higher priority over the selected operating system in the Module Settings of a product.
+
+#### Plan parameters
+
+The module gives the ability to select specific plan parameters such as `VCPU`, `Memory`, `Disk`, `Total traffic limit monthly` (for KVM and VZ), `VCPU Units`, `VCPU Limit`, `IO Priority`, and `Swap` (for VZ).
+You can manage the list of available plan parameters in the Configurable Options.
+
+![VCPU](./docs/option-vcpu.png)
+
+Create a configurable option with one of the following names: `VCPU`, `Memory`, `Disk`, `Total traffic limit monthly`, `VCPU Units`, `VCPU Limit`, `IO Priority`, or `Swap`. Add options with the following convention: `planParamValue|planParamTitle`. The option will have higher priority over parameters of the selected plan in the Module Settings of a product.
+
+`planParamValue` for the `Memory` and the `Swap` set in MiB (e.g. `4096|4 GiB`).
+
+`planParamValue` for the `Disk` set in GiB (e.g. `20|20 GiB`).
+
+`planParamValue` for the `Total traffic limit monthly` set in units, which are specified in the `Total Traffic limit` option of the plan selected in Module Settings of a product in SolusIO (e.g. `1|1 GiB` if the `Total Traffic limit` unit is `GiB` or `1024|1 Gib` if the `Total Traffic limit` unit is `MiB`).
+`Total traffic limit monthly` option can only be used if the plan selected in Module Settings of a product has the `Total Traffic limit` option enabled in SolusIO.
+
+![Plan traffic limit required options](./docs/plan-traffic-limit-required-options.png)
 
 #### SSH Key
 
