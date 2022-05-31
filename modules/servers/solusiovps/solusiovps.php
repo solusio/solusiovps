@@ -297,6 +297,7 @@ function solusiovps_CreateAccount(array $params): string
         );
 
         $serverData = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($params);
+        $serverData->withUser($solusUserId);
         $sshKey = Strings::convertToSshKey($params['customfields'][SolusSshKey::CUSTOM_FIELD_SSH_KEY] ?? '');
 
         if (!empty($sshKey)) {
@@ -304,8 +305,7 @@ function solusiovps_CreateAccount(array $params): string
             $serverData->withSshKeys([ $sshKeyId ]);
         }
 
-        $userApiToken = $userResource->createToken($solusUserId);
-        $serverResource = new ServerResource(Connector::create($params, $userApiToken));
+        $serverResource = new ServerResource(Connector::create($params));
 
         $response = $serverResource->create($serverData->get());
         $data = Arr::get($response, 'data', []);

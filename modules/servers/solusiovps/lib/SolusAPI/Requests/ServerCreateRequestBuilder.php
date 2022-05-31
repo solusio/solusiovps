@@ -68,6 +68,16 @@ final class ServerCreateRequestBuilder
      */
     private $sshKeys;
 
+    /**
+     * @var ?int
+     */
+    private $userId;
+
+    /**
+     * @var ?array
+     */
+    private $customPlanData;
+
     public function __construct(
         $domain,
         $password,
@@ -124,6 +134,11 @@ final class ServerCreateRequestBuilder
             $builder->withOperatingSystem($osId, $userData);
         }
 
+        $customPlanData = self::extractCustomPlanData($params);
+        if ($customPlanData) {
+            $builder->withCustomPlan($customPlanData);
+        }
+
         return $builder;
     }
 
@@ -146,6 +161,20 @@ final class ServerCreateRequestBuilder
     public function withSshKeys(array $keys): self
     {
         $this->sshKeys = $keys;
+
+        return $this;
+    }
+
+    public function withUser(int $userId): self
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function withCustomPlan(array $customPlanData): self
+    {
+        $this->customPlanData = $customPlanData;
 
         return $this;
     }
@@ -198,6 +227,55 @@ final class ServerCreateRequestBuilder
             $request['ssh_keys'] = $this->sshKeys;
         }
 
+        if ($this->userId) {
+            $request['user'] = $this->userId;
+        }
+
+        if ($this->customPlanData) {
+            $request['custom_plan'] = $this->customPlanData;
+        }
+
         return $request;
+    }
+
+    private static function extractCustomPlanData(array $params): ?array
+    {
+        $customPlanData = [];
+
+        if ($vcpu = self::getConfigOption($params, ProductConfigOption::VCPU)) {
+            $customPlanData['params']['vcpu'] = (int)$vcpu;
+        }
+        if ($ram = self::getConfigOption($params, ProductConfigOption::MEMORY)) {
+            $customPlanData['params']['ram'] = $ram * 1024 * 1024;
+        }
+        if ($disk = self::getConfigOption($params, ProductConfigOption::DISK_SPACE)) {
+            $customPlanData['params']['disk'] = (int)$disk;
+        }
+        if ($vcpuUnits = self::getConfigOption($params, ProductConfigOption::VCPU_UNITS)) {
+            $customPlanData['params']['vcpu_units'] = (int)$vcpuUnits;
+        }
+        if ($vcpuLimit = self::getConfigOption($params, ProductConfigOption::VCPU_LIMIT)) {
+            $customPlanData['params']['vcpu_limit'] = (int)$vcpuLimit;
+        }
+        if ($ioPriority = self::getConfigOption($params, ProductConfigOption::IO_PRIORITY)) {
+            $customPlanData['params']['io_priority'] = (int)$ioPriority;
+        }
+        if ($swap = self::getConfigOption($params, ProductConfigOption::SWAP)) {
+            $customPlanData['params']['swap'] = $swap * 1024 * 1024;
+        }
+        if ($totalTrafficLimitMonthly =
+            self::getConfigOption($params, ProductConfigOption::TOTAL_TRAFFIC_LIMIT_MONTHLY)
+        ) {
+            $customPlanData['limits']['network_total_traffic'] = [
+                'limit' => (int)$totalTrafficLimitMonthly,
+            ];
+        }
+
+        return count($customPlanData) > 0 ? $customPlanData : null;
+    }
+
+    private static function getConfigOption(array $params, string $optionName)
+    {
+        return Arr::get($params, sprintf('configoptions.%s', $optionName));
     }
 }
