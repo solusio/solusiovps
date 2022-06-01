@@ -69,16 +69,16 @@ Create a configurable option named `Operating System`. Add options with the foll
 
 #### Plan parameters
 
-The module gives the ability to select specific plan parameters such as `VCPU`, `Memory`, `Disk`, `Total traffic limit monthly` (for KVM and VZ), `VCPU Units`, `VCPU Limit`, `IO Priority`, and `Swap` (for VZ).
+The module gives the ability to select specific plan parameters such as `VCPU`, `Memory`, `Disk Space`, `Total traffic limit monthly` (for KVM and VZ), `VCPU Units`, `VCPU Limit`, `IO Priority`, and `Swap` (for VZ).
 You can manage the list of available plan parameters in the Configurable Options.
 
 ![VCPU](./docs/option-vcpu.png)
 
-Create a configurable option with one of the following names: `VCPU`, `Memory`, `Disk`, `Total traffic limit monthly`, `VCPU Units`, `VCPU Limit`, `IO Priority`, or `Swap`. Add options with the following convention: `planParamValue|planParamTitle`. The option will have higher priority over parameters of the selected plan in the Module Settings of a product.
+Create a configurable option with one of the following names: `VCPU`, `Memory`, `Disk Space`, `Total traffic limit monthly`, `VCPU Units`, `VCPU Limit`, `IO Priority`, or `Swap`. Add options with the following convention: `planParamValue|planParamTitle`. The option will have higher priority over parameters of the selected plan in the Module Settings of a product.
 
 `planParamValue` for the `Memory` and the `Swap` set in MiB (e.g. `4096|4 GiB`).
 
-`planParamValue` for the `Disk` set in GiB (e.g. `20|20 GiB`).
+`planParamValue` for the `Disk Space` set in GiB (e.g. `20|20 GiB`).
 
 `planParamValue` for the `Total traffic limit monthly` set in units, which are specified in the `Total Traffic limit` option of the plan selected in Module Settings of a product in SolusIO (e.g. `1|1 GiB` if the `Total Traffic limit` unit is `GiB` or `1024|1 Gib` if the `Total Traffic limit` unit is `MiB`).
 `Total traffic limit monthly` option can only be used if the plan selected in Module Settings of a product has the `Total Traffic limit` option enabled in SolusIO.
