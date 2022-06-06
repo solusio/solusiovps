@@ -74,6 +74,11 @@ final class ServerCreateRequestBuilder
     private $userId;
 
     /**
+     * @var ?int
+     */
+    private $additionalIpCount;
+
+    /**
      * @var ?array
      */
     private $customPlanData;
@@ -134,6 +139,10 @@ final class ServerCreateRequestBuilder
             $builder->withOperatingSystem($osId, $userData);
         }
 
+        if ($additionalIpCount = self::getConfigOption($params, ProductConfigOption::EXTRA_IP_ADDRESS)) {
+            $builder->withAdditionalIps($additionalIpCount);
+        }
+
         $customPlanData = self::extractCustomPlanData($params);
         if ($customPlanData) {
             $builder->withCustomPlan($customPlanData);
@@ -168,6 +177,13 @@ final class ServerCreateRequestBuilder
     public function withUser(int $userId): self
     {
         $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function withAdditionalIps(int $additionalIpCount): self
+    {
+        $this->additionalIpCount = $additionalIpCount;
 
         return $this;
     }
@@ -229,6 +245,10 @@ final class ServerCreateRequestBuilder
 
         if ($this->userId) {
             $request['user'] = $this->userId;
+        }
+
+        if ($this->additionalIpCount) {
+            $request['additional_ip_count'] = $this->additionalIpCount;
         }
 
         if ($this->customPlanData) {
