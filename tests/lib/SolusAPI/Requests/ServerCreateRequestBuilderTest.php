@@ -152,7 +152,7 @@ class ServerCreateRequestBuilderTest extends TestCase
     {
         $params = Arr::except($this->params, [ 'configoption4']);
         $params['configoption5'] = 'user_data';
-        $params['configoptions']['Operating System'] = 1;
+        $params['configoptions'][ProductConfigOption::OPERATING_SYSTEM] = 1;
 
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($params);
 
@@ -162,7 +162,7 @@ class ServerCreateRequestBuilderTest extends TestCase
             'location' => 1,
             'password' => 'test_pass',
             'fqdns' => [ 'test.domain.ltd' ],
-            'os' => 1,
+            'os' => $params['configoptions'][ProductConfigOption::OPERATING_SYSTEM] ,
             'user_data' => 'user_data',
         ]);
     }
@@ -186,14 +186,14 @@ class ServerCreateRequestBuilderTest extends TestCase
 
     public function testBuildFromCreateAccountParamsWithCustomPlanConfigOptions(): void
     {
-        $this->params['configoptions']['VCPU'] = 1;
-        $this->params['configoptions']['Memory'] = 2;
-        $this->params['configoptions']['Disk Space'] = 2;
-        $this->params['configoptions']['VCPU Units'] = 8;
-        $this->params['configoptions']['VCPU Limit'] = 10;
-        $this->params['configoptions']['IO Priority'] = 6;
-        $this->params['configoptions']['Swap'] = 4;
-        $this->params['configoptions']['Total traffic limit monthly'] = 5;
+        $this->params['configoptions'][ProductConfigOption::VCPU] = 1;
+        $this->params['configoptions'][ProductConfigOption::MEMORY] = 2;
+        $this->params['configoptions'][ProductConfigOption::DISK_SPACE] = 2;
+        $this->params['configoptions'][ProductConfigOption::VCPU_UNITS] = 8;
+        $this->params['configoptions'][ProductConfigOption::VCPU_LIMIT] = 10;
+        $this->params['configoptions'][ProductConfigOption::IO_PRIORITY] = 6;
+        $this->params['configoptions'][ProductConfigOption::SWAP] = 4;
+        $this->params['configoptions'][ProductConfigOption::TOTAL_TRAFFIC_LIMIT_MONTHLY] = 5;
 
         $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($this->params);
 
@@ -207,20 +207,38 @@ class ServerCreateRequestBuilderTest extends TestCase
             'application_data' => [''],
             'custom_plan' => [
                 'params' => [
-                    'vcpu' => $this->params['configoptions']['VCPU'],
-                    'ram' => $this->params['configoptions']['Memory'] * 1024 * 1024,
-                    'disk' => $this->params['configoptions']['Disk Space'],
-                    'vcpu_units' => $this->params['configoptions']['VCPU Units'],
-                    'vcpu_limit' => $this->params['configoptions']['VCPU Limit'],
-                    'io_priority' => $this->params['configoptions']['IO Priority'],
-                    'swap' => $this->params['configoptions']['Swap'] * 1024 * 1024,
+                    'vcpu' => $this->params['configoptions'][ProductConfigOption::VCPU],
+                    'ram' => $this->params['configoptions'][ProductConfigOption::MEMORY] * 1024 * 1024,
+                    'disk' => $this->params['configoptions'][ProductConfigOption::DISK_SPACE],
+                    'vcpu_units' => $this->params['configoptions'][ProductConfigOption::VCPU_UNITS],
+                    'vcpu_limit' => $this->params['configoptions'][ProductConfigOption::VCPU_LIMIT],
+                    'io_priority' => $this->params['configoptions'][ProductConfigOption::IO_PRIORITY],
+                    'swap' => $this->params['configoptions'][ProductConfigOption::SWAP] * 1024 * 1024,
                 ],
                 'limits' => [
                     'network_total_traffic' => [
-                        'limit' => $this->params['configoptions']['Total traffic limit monthly'],
+                        'limit' => $this->params['configoptions'][ProductConfigOption::TOTAL_TRAFFIC_LIMIT_MONTHLY],
                     ],
                 ],
             ],
+        ]);
+    }
+
+    public function testBuildFromCreateAccountParamsWithExtraIpAddressConfigOptions(): void
+    {
+        $this->params['configoptions'][ProductConfigOption::EXTRA_IP_ADDRESS] = 3;
+
+        $builder = ServerCreateRequestBuilder::fromWHMCSCreateAccountParams($this->params);
+
+        self::assertEquals($builder->get(), [
+            'name' => 'test.domain.ltd',
+            'plan' => 1,
+            'location' => 1,
+            'password' => 'test_pass',
+            'fqdns' => [ 'test.domain.ltd' ],
+            'application' => 1,
+            'application_data' => [''],
+            'additional_ip_count' => $this->params['configoptions'][ProductConfigOption::EXTRA_IP_ADDRESS],
         ]);
     }
 }

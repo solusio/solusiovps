@@ -21,6 +21,7 @@ class ProductConfigOption
     const IO_PRIORITY = 'IO Priority';
     const SWAP = 'Swap';
     const TOTAL_TRAFFIC_LIMIT_MONTHLY = 'Total traffic limit monthly';
+    const EXTRA_IP_ADDRESS = 'Extra IP Address';
 
     public static function getProductOptions(int $productId, string $optionName): array
     {

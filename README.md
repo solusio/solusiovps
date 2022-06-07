@@ -53,7 +53,7 @@ Select the `Plan`, `Default Location` and `Default Operating System` or `Applica
 
 #### Locations
 
-The module gives the ability to select a specific location on ordering of a product. You can manage the list of available locations in the Configurable Options.
+The module gives the ability to select a specific location while ordering a product. You can manage the list of available locations in the Configurable Options.
 
 ![Location](./docs/option-location.png)
 
@@ -61,7 +61,7 @@ Create a configurable option named `Location`. Add options with the following co
 
 #### Operating Systems
 
-The module gives the ability to select a specific operating system on ordering of a product. You can manage the list of available operating systems in the Configurable Options.
+The module gives the ability to select a specific operating system while ordering a product. You can manage the list of available operating systems in the Configurable Options.
 
 ![Operating System](./docs/option-os.png)
 
@@ -69,7 +69,7 @@ Create a configurable option named `Operating System`. Add options with the foll
 
 #### Plan parameters
 
-The module gives the ability to select specific plan parameters such as `VCPU`, `Memory`, `Disk Space`, `Total traffic limit monthly` (for KVM and VZ), `VCPU Units`, `VCPU Limit`, `IO Priority`, and `Swap` (for VZ).
+The module gives the ability to select specific plan parameters such as `VCPU`, `Memory`, `Disk Space`, `Total traffic limit monthly` (for KVM and VZ), `VCPU Units`, `VCPU Limit`, `IO Priority`, and `Swap` (for VZ) while ordering a product.
 You can manage the list of available plan parameters in the Configurable Options.
 
 ![VCPU](./docs/option-vcpu.png)
@@ -85,9 +85,18 @@ Create a configurable option with one of the following names: `VCPU`, `Memory`, 
 
 ![Plan traffic limit required options](./docs/plan-traffic-limit-required-options.png)
 
+#### Extra IPs
+
+The module gives the ability to select the count of additional IPs while ordering a product. You can manage the list of allowed values in the Configurable Options.
+
+![Extra IPs](./docs/option-extra-ips.png)
+
+Create a configurable option named `Extra IP Address`. Add options with the following convention: `ip count|title`.
+`Extra IP Address` option can only be used if the plan selected in Module Settings of a product has the `Offer additional IP addresses` option enabled in SolusIO.
+
 #### SSH Key
 
-The module gives the ability to specify an SSH key on ordering of a product. This is done in the form a product custom field.
+The module gives the ability to specify an SSH key while ordering a product. This is done in the form a product custom field.
 
 Create a custom field named `SSH Key` and type `Text Area`.
 
