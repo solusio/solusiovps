@@ -238,9 +238,18 @@
                 <td>{$LANG.recurringamount}</td>
                 <td>{$recurringamount}</td>
             </tr>
-            <tr style="border-bottom: 1px solid #dddddd">
+            <tr>
                 <td>{$LANG.clientareahostingnextduedate}</td>
                 <td>{$nextduedate}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #dddddd">
+                <td>{$LANG.solusvm2vps_traffic}</td>
+                <td>
+                    {$data['traffic_current']} {$data['traffic_unit']}
+                    {if $data['traffic_limit']}
+                        / {$data['traffic_limit']} {$data['traffic_unit']}
+                    {/if}
+                </td>
             </tr>
         </table>
     </div>

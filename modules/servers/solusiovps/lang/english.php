@@ -65,3 +65,6 @@ $_LANG['solusiovps_chart_disk_label_write'] = 'Write KiB';
 
 $_LANG['solusiovps_chart_memory_title'] = 'Memory usage';
 $_LANG['solusiovps_chart_memory_label_usage'] = 'Usage MiB';
+
+$_LANG['solusvm2vps_traffic'] = 'Total traffic';
+
