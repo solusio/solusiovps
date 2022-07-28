@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use \GuzzleHttp\Exception\RequestException;
 use WHMCS\Module\Server\SolusIoVps\Exceptions\SolusException;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
+use WHMCS\Module\Server\SolusIoVps\Helpers\Unit;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ServerCreateRequestBuilder;
@@ -423,6 +424,12 @@ function solusiovps_ClientArea(array $params): array
         $productId = (int)$params['pid'];
         $defaultOsId = (int)Arr::get($params, 'configoption3');
 
+        $totalTraffic = Unit::convert(
+            Arr::get($serverResponse, 'data.usage.network.incoming.value') +
+            Arr::get($serverResponse, 'data.usage.network.outgoing.value'),
+            Arr::get($serverResponse, 'data.plan.limits.network_total_traffic.unit')
+        );
+
         return [
             'tabOverviewReplacementTemplate' => 'templates/overview.tpl',
             'templateVariables' => [
@@ -433,6 +440,11 @@ function solusiovps_ClientArea(array $params): array
                     'default_os_id' => $defaultOsId,
                     'domain' => $params['domain'],
                     'boot_mode' => Arr::get($serverResponse, 'data.boot_mode'),
+                    'traffic_current' => $totalTraffic,
+                    'traffic_limit' => Arr::get($serverResponse, 'data.plan.limits.network_total_traffic.is_enabled')
+                        ? Arr::get($serverResponse, 'data.plan.limits.network_total_traffic.limit')
+                        : null,
+                    'traffic_unit' => Arr::get($serverResponse, 'data.plan.limits.network_total_traffic.unit'),
                 ],
             ],
         ];

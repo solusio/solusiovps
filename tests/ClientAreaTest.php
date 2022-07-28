@@ -7,6 +7,7 @@ namespace Tests;
 use Mockery;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\ProductConfigOption;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
+use WHMCS\Module\Server\SolusIoVps\Helpers\Unit;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
@@ -89,7 +90,10 @@ class ClientAreaTest extends AbstractModuleTest
         ]);
     }
 
-    public function testLoadServerPageServer(): void
+    /**
+     * @dataProvider loadServerPageServerDataProvider
+     */
+    public function testLoadServerPageServer(bool $isEnabledTrafficLimit, ?int $expectedTrafficLimit): void
     {
         $this->solusServer->shouldReceive('getByServiceId')
             ->with((int)$this->params['serviceid'])
@@ -104,6 +108,25 @@ class ClientAreaTest extends AbstractModuleTest
                        'ipv4' => [
                            0 => [
                                'ip' => '192.168.0.1',
+                           ],
+                       ],
+                   ],
+                   'usage' => [
+                       'network' => [
+                           'incoming' => [
+                               'value' => 1024*1024*1024 / 2 - 1,
+                           ],
+                           'outgoing' => [
+                               'value' => 1024*1024*1024 / 2 - 42,
+                           ]
+                       ],
+                   ],
+                   'plan' => [
+                       'limits' => [
+                           'network_total_traffic' => [
+                               'is_enabled' => $isEnabledTrafficLimit,
+                               'limit' => 1,
+                               'unit' => Unit::GiB,
                            ],
                        ],
                    ],
@@ -125,8 +148,19 @@ class ClientAreaTest extends AbstractModuleTest
                     'default_os_id' => 1,
                     'domain' => 'test.domain.ltd',
                     'boot_mode' => 'resque',
+                    'traffic_current' => 0.99,
+                    'traffic_limit' => $expectedTrafficLimit,
+                    'traffic_unit' => Unit::GiB,
                 ],
             ],
         ]);
+    }
+
+    public function loadServerPageServerDataProvider(): array
+    {
+        return [
+            'enabled traffic limit' => [true, 1],
+            'disabled traffic limit' => [false, null],
+        ];
     }
 }
