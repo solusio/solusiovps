@@ -14,8 +14,11 @@ define('CLIENTAREA', true);
 require dirname(__DIR__, 4) . '/init.php';
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$serviceId = (int) $_GET['serviceId'];
-$osId = (int) $_GET['osId'];
+$serviceId = (int) $_POST['serviceId'];
+$osId = (int) $_POST['osId'];
+$applicationId = (int) $_POST['applicationId'];
+$applicationData = $_POST['applicationData'];
+
 $ca = new ClientArea();
 $hosting = Hosting::getByServiceId($serviceId);
 
@@ -28,4 +31,4 @@ $serverId = (int) $hosting->server;
 $serverParams = Server::getParams($serverId);
 $serverResource = new ServerResource(Connector::create($serverParams));
 
-$serverResource->reinstall($server->server_id, $osId);
+$serverResource->reinstall($server->server_id, $osId, $applicationId, $applicationData);

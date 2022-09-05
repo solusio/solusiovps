@@ -9,6 +9,7 @@ use WHMCS\Module\Server\SolusIoVps\Database\Models\ProductConfigOption;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\SolusServer;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Unit;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Connector;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ApplicationResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 
@@ -18,6 +19,7 @@ class ClientAreaTest extends AbstractModuleTest
     private array $params;
     private Mockery\MockInterface $serverResource;
     private Mockery\MockInterface $solusServer;
+    private Mockery\MockInterface $applicationResource;
     private Mockery\MockInterface $productConfigOption;
 
     protected function setUp(): void
@@ -31,11 +33,14 @@ class ClientAreaTest extends AbstractModuleTest
             'status' => 'Pending',
             // default operating system id
             'configoption3' => '1',
+            // default application id
+            'configoption4' => '2',
         ];
 
         Mockery::getConfiguration()->setConstantsMap([
             'WHMCS\Module\Server\SolusIoVps\Database\Models\ProductConfigOption' => [
                 'OPERATING_SYSTEM' => 'Operating System',
+                'APPLICATION' => 'Application',
             ],
         ]);
 
@@ -45,6 +50,7 @@ class ClientAreaTest extends AbstractModuleTest
         $this->productConfigOption = Mockery::mock('overload:' . ProductConfigOption::class);
         $this->solusServer = Mockery::mock('overload:' . SolusServer::class);
         $this->solusServer->shouldReceive('getByServiceId')->once()->andReturn(true);
+        $this->applicationResource = Mockery::mock('overload:' . ApplicationResource::class);
     }
 
     public function loadServerPageNegativeDataProvider(): array
@@ -135,6 +141,40 @@ class ClientAreaTest extends AbstractModuleTest
         $this->productConfigOption->shouldReceive('getProductOptions')
             ->with($this->params['pid'], 'Operating System')
             ->andReturn([ 'product' => [ 'option1', 'option2' ] ]);
+        $this->productConfigOption->shouldReceive('getProductOptions')
+            ->with($this->params['pid'], 'Application')
+            ->andReturn([[
+                'id' => 2,
+                'name' => 'Application 2',
+            ]]);
+        $this->applicationResource->shouldReceive('list')->andReturn([
+            [
+                'id' => 1,
+                'name' => 'Application 1',
+                'json_schema' => json_encode([
+                    'foo1' => 'bar1',
+                    'required' => ['foo1'],
+                    'properties' => [
+                        'foo1' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                ]),
+            ],
+            [
+                'id' => 2,
+                'name' => 'Application 2',
+                'json_schema' => json_encode([
+                    'foo2' => 'bar2',
+                    'required' => ['foo2'],
+                    'properties' => [
+                        'foo2' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                ]),
+            ],
+        ]);
 
         $result = call_user_func(self::getModuleFunction('ClientArea'), $this->params);
 
@@ -145,7 +185,21 @@ class ClientAreaTest extends AbstractModuleTest
                     'ip' => '192.168.0.1',
                     'status' => 'running',
                     'operating_systems' => json_encode([ 'product' => [ 'option1', 'option2' ] ]),
+                    'applications' => json_encode([2 => [
+                        'name' => 'Application 2',
+                        'schema' => [
+                            'foo2' => 'bar2',
+                            'required' => ['foo2'],
+                            'properties' => [
+                                'foo2' => [
+                                    'type' => 'string',
+                                    'required' => true,
+                                ],
+                            ],
+                        ],
+                    ]]),
                     'default_os_id' => 1,
+                    'default_application_id' => 2,
                     'domain' => 'test.domain.ltd',
                     'boot_mode' => 'resque',
                     'traffic_current' => 0.99,

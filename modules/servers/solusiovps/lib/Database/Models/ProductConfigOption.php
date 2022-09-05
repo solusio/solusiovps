@@ -13,6 +13,7 @@ class ProductConfigOption
 {
     const LOCATION = 'Location';
     const OPERATING_SYSTEM = 'Operating System';
+    const APPLICATION = 'Application';
     const MEMORY = 'Memory';
     const DISK_SPACE = 'Disk Space';
     const VCPU = 'VCPU';

@@ -67,6 +67,14 @@ The module gives the ability to select a specific operating system while orderin
 
 Create a configurable option named `Operating System`. Add options with the following convention: `osId|osName`. The option will have higher priority over the selected operating system in the Module Settings of a product.
 
+#### Applications
+
+The module gives the ability to select a specific application while ordering a product. You can manage the list of available applications in the Configurable Options.
+
+![Application](./docs/option-app.png)
+
+Create a configurable option named `Application`. Add options with the following convention: `applicationId|applicationName`. The option will have higher priority over the selected application in the Module Settings of a product. If client chooses both `Operating System` and `Application` then the `Operating System` option will be used.
+
 #### Plan parameters
 
 The module gives the ability to select specific plan parameters such as `VCPU`, `Memory`, `Disk Space`, `Total traffic limit monthly` (for KVM and VZ), `VCPU Units`, `VCPU Limit`, `IO Priority`, and `Swap` (for VZ) while ordering a product.

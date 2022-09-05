@@ -61,7 +61,7 @@ class ServerResource extends ApiResource
         return $this->processResponse($this->connector->post("servers/{$id}/restart"));
     }
 
-    public function reinstall(int $serverId, int $osId): array
+    public function reinstall(int $serverId, int $osId, int $applicationId, array $applicationData = []): array
     {
         $options = [];
 
@@ -69,6 +69,13 @@ class ServerResource extends ApiResource
             $options = [
                 'json' => [
                     'os' => $osId,
+                ],
+            ];
+        } else if ($applicationId > 0) {
+            $options = [
+                'json' => [
+                    'application' => $applicationId,
+                    'application_data' => $applicationData,
                 ],
             ];
         }

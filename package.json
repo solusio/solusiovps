@@ -9,7 +9,8 @@
     },
     "dependencies": {
         "@novnc/novnc": "^1.2.0",
-        "chart.js": "^2.9.4"
+        "chart.js": "^2.9.4",
+        "jsonform": "^2.2.5"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5.9"
