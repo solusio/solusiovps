@@ -181,6 +181,8 @@ class ConfigParamsTest extends AbstractModuleTest
 
     /**
      * @dataProvider applicationLoaderProvider
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function testApplicationLoader(array $response, array $expected): void
     {

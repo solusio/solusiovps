@@ -37,19 +37,36 @@
 </style>
 
 <script src="modules/servers/solusiovps/node_modules/chart.js/dist/Chart.js"></script>
+<script type="text/javascript" src="modules/servers/solusiovps/node_modules/jsonform/deps/underscore.js"></script>
+<script type="text/javascript" src="modules/servers/solusiovps/node_modules/jsonform/deps/opt/jsv.js"></script>
+<script type="text/javascript" src="modules/servers/solusiovps/node_modules/jsonform/lib/jsonform.js"></script>
+<script type="text/javascript" src="modules/servers/solusiovps/js/jquery.validate.min.js"></script>
 
-<div id="dlg-os-selector" class="modal">
+<div id="dlg-reinstall-selector" class="modal">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body">
-                <p>
-                    {$LANG.solusiovps_config_option_operating_system}:
-                </p>
-                <p>
-                    <select id="fld-os-id" class="form-control">
-                        <option value="0">.lauris.space</option>
-                    </select>
-                </p>
+                <div id="os-id-block">
+                    <p>
+                        {$LANG.solusiovps_config_option_operating_system}:
+                    </p>
+                    <p>
+                        <select id="fld-os-id" class="form-control" onchange="onChangeOs();">
+                            <option value="0"></option>
+                        </select>
+                    </p>
+                </div>
+                <div id="application-id-block">
+                    <p>
+                        {$LANG.solusiovps_config_option_application}:
+                    </p>
+                    <p>
+                        <select id="fld-application-id" class="form-control" onchange="onChangeApplication(this.value);">
+                            <option value="0"></option>
+                        </select>
+                    </p>
+                    <form id="reinstall-form"></form>
+                </div>
                 <p style="text-align: right;">
                     <button class="btn btn-danger" onclick="reinstallServerConfirm();">
                         {$LANG.solusiovps_button_reinstall}
@@ -243,7 +260,7 @@
                 <td>{$nextduedate}</td>
             </tr>
             <tr style="border-bottom: 1px solid #dddddd">
-                <td>{$LANG.solusvm2vps_traffic}</td>
+                <td>{$LANG.solusiovps_traffic}</td>
                 <td>
                     {$data['traffic_current']} {$data['traffic_unit']}
                     {if $data['traffic_limit']}
@@ -294,6 +311,8 @@
 <script>
 const operatingSystems = {$data['operating_systems']};
 const defaultOsId = {$data['default_os_id']};
+const applications = {$data['applications']};
+const defaultApplicationId = {$data['default_application_id']};
 
 let domain = '{$data['domain']}';
 let bootMode = '{$data['boot_mode']}';
@@ -351,8 +370,31 @@ const restartServer = () => {
     });
 }
 
+const onChangeOs = () => {
+    let $select = $('#fld-application-id');
+    $select.val(0);
+    $('#reinstall-form').html("")
+}
+
+const onChangeApplication = (value) => {
+    let $select = $('#fld-os-id');
+    $select.val(0);
+
+    if (applications[value] !== undefined) {
+        $('#reinstall-form').html("").jsonForm({
+            schema: applications[value]['schema'],
+            form: ["*"],
+        });
+    }
+}
+
 const reinstallServer = () => {
     if (!window.confirm('{$LANG.solusiovps_confirm_reinstall}')) {
+        return;
+    }
+
+    if (Object.keys(operatingSystems).length === 0 && Object.keys(applications).length === 0) {
+        reinstallServerContinue(defaultOsId, 0);
         return;
     }
 
@@ -369,33 +411,65 @@ const reinstallServer = () => {
         }
 
         $select.val(defaultOsId);
-
-        $('#dlg-os-selector').modal('show');
     } else {
-        reinstallServerContinue(defaultOsId);
+        $('#os-id-block').hide()
     }
+
+    if (Object.keys(applications).length > 0) {
+        let $select = $('#fld-application-id');
+
+        $select.empty();
+
+        for (const [id, application] of Object.entries(applications)) {
+            $select.append($('<option>', {
+                value: id,
+                text: application['name']
+            }));
+        }
+
+        if (Object.keys(operatingSystems).length === 0 || defaultOsId === 0) {
+            $select.val(defaultApplicationId);
+            if (defaultApplicationId > 0) {
+                onChangeApplication(defaultApplicationId);
+            }
+        } else {
+            $select.val(0);
+        }
+    } else {
+        $('#application-id-block').hide()
+    }
+
+    $('#dlg-reinstall-selector').modal('show');
 }
 
-const reinstallServerContinue = osId => {
-    $.get({
+const reinstallServerContinue = (osId, applicationId = 0, applicationData = {}) => {
+    $.post({
         url: 'modules/servers/solusiovps/pages/reinstall.php',
         data: {
             serviceId: {$serviceid},
-            osId: osId
+            osId: osId,
+            applicationId: applicationId,
+            applicationData: applicationData,
         }
     });
 }
 
 const reinstallServerConfirm = () => {
     const osId = $('#fld-os-id').val();
+    const applicationId = $('#fld-application-id').val();
+    const form = $('#reinstall-form');
+    let applicationData = new Object();
 
-    reinstallServerContinue(osId);
+    if(applicationId > 0 && $(form).valid()) {
+        form.serializeArray().map(field => applicationData[field.name] = field.value);
+    }
 
-    $('#dlg-os-selector').modal('hide');
+    reinstallServerContinue(osId, applicationId, applicationData);
+    $('#dlg-reinstall-selector').modal('hide');
 }
 
 const reinstallServerCancel = () => {
-    $('#dlg-os-selector').modal('hide');
+    $('#dlg-reinstall-selector').modal('hide');
 }
 
 const openVncDialog = () => {

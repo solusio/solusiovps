@@ -423,6 +423,25 @@ function solusiovps_ClientArea(array $params): array
         $serverResponse = $serverResource->get($server->server_id);
         $productId = (int)$params['pid'];
         $defaultOsId = (int)Arr::get($params, 'configoption3');
+        $defaultApplicationId = (int)Arr::get($params, 'configoption4');
+
+        $applicationOptions = ProductConfigOption::getProductOptions($productId, ProductConfigOption::APPLICATION);
+
+        $applicationResource = new ApplicationResource(Connector::create($params));
+        $applications = [];
+        foreach ($applicationResource->list() as $item) {
+            $id = (int)Arr::get($item, 'id');
+            if (isset($applicationOptions[$id]) || $id === $defaultApplicationId) {
+                $schema = json_decode(Arr::get($item, 'json_schema'), true);
+                foreach ($schema['required'] as $property) {
+                    $schema['properties'][$property]['required'] = true;
+                }
+                $applications[$id] = [
+                    'name' => Arr::get($item, 'name'),
+                    'schema' => $schema,
+                ];
+            }
+        }
 
         $totalTraffic = Unit::convert(
             Arr::get($serverResponse, 'data.usage.network.incoming.value') +
@@ -436,8 +455,12 @@ function solusiovps_ClientArea(array $params): array
                 'data' => [
                     'ip' => Arr::get($serverResponse, 'data.ip_addresses.ipv4.0.ip'),
                     'status' => Arr::get($serverResponse, 'data.status'),
-                    'operating_systems' => json_encode(ProductConfigOption::getProductOptions($productId, ProductConfigOption::OPERATING_SYSTEM)),
+                    'operating_systems' => json_encode(
+                        ProductConfigOption::getProductOptions($productId, ProductConfigOption::OPERATING_SYSTEM)
+                    ),
                     'default_os_id' => $defaultOsId,
+                    'applications' => json_encode($applications),
+                    'default_application_id' => $defaultApplicationId,
                     'domain' => $params['domain'],
                     'boot_mode' => Arr::get($serverResponse, 'data.boot_mode'),
                     'traffic_current' => $totalTraffic,
