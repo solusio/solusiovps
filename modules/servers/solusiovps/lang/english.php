@@ -8,7 +8,7 @@ if (!defined('WHMCS')) {
 
 $_LANG['solusiovps_config_option_plan'] = 'Plan';
 $_LANG['solusiovps_config_option_operating_system'] = 'Operating System';
-$_LANG['solusvm2vps_config_option_application'] = 'Application';
+$_LANG['solusiovps_config_option_application'] = 'Application';
 $_LANG['solusiovps_config_option_default_operating_system'] = 'Default Operating System';
 $_LANG['solusiovps_config_option_application'] = 'Application';
 $_LANG['solusiovps_config_option_default_location'] = 'Default Location';
@@ -67,5 +67,5 @@ $_LANG['solusiovps_chart_disk_label_write'] = 'Write KiB';
 $_LANG['solusiovps_chart_memory_title'] = 'Memory usage';
 $_LANG['solusiovps_chart_memory_label_usage'] = 'Usage MiB';
 
-$_LANG['solusvm2vps_traffic'] = 'Total traffic';
+$_LANG['solusiovps_traffic'] = 'Total traffic';
 
