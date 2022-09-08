@@ -373,7 +373,7 @@ const restartServer = () => {
 const onChangeOs = () => {
     let $select = $('#fld-application-id');
     $select.val(0);
-    $('#reinstall-form').html("")
+    $('#reinstall-form').html("");
 }
 
 const onChangeApplication = (value) => {
@@ -399,6 +399,7 @@ const reinstallServer = () => {
     }
 
     if (Object.keys(operatingSystems).length > 0) {
+        $('#reinstall-form').html("");
         let $select = $('#fld-os-id');
 
         $select.empty();
@@ -412,7 +413,7 @@ const reinstallServer = () => {
 
         $select.val(defaultOsId);
     } else {
-        $('#os-id-block').hide()
+        $('#os-id-block').hide();
     }
 
     if (Object.keys(applications).length > 0) {
@@ -436,13 +437,13 @@ const reinstallServer = () => {
             $select.val(0);
         }
     } else {
-        $('#application-id-block').hide()
+        $('#application-id-block').hide();
     }
 
     $('#dlg-reinstall-selector').modal('show');
 }
 
-const reinstallServerContinue = (osId, applicationId = 0, applicationData = {}) => {
+const reinstallServerContinue = (osId, applicationId = 0, applicationData = null) => {
     $.post({
         url: 'modules/servers/solusiovps/pages/reinstall.php',
         data: {

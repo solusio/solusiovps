@@ -17,7 +17,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 $serviceId = (int) $_POST['serviceId'];
 $osId = (int) $_POST['osId'];
 $applicationId = (int) $_POST['applicationId'];
-$applicationData = $_POST['applicationData'];
+$applicationData = $_POST['applicationData'] ?? [];
 
 $ca = new ClientArea();
 $hosting = Hosting::getByServiceId($serviceId);
