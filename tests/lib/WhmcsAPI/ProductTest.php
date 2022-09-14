@@ -68,8 +68,12 @@ class ProductTest extends AbstractModuleTest
         $connector = Mockery::mock('overload:' . Connector::class);
         $connector->shouldReceive('create')->with($serverParams)->andReturn(true);
         $serverResource = Mockery::mock('overload:' . ServerResource::class);
-        $serverResource->shouldReceive('resize')
-            ->with($solusServerId, $newPlanId);
+        $serverResource
+            ->shouldReceive('resize')
+            ->with($solusServerId, [
+                'plan_id' => $newPlanId,
+                'preserve_disk' => false,
+            ]);
 
         self::assertNull(Product::upgrade($this->upgradeId));
     }

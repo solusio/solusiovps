@@ -50,6 +50,9 @@ class Product
         $serverParams = Server::getParams($serverId);
         $serverResource = new ServerResource(Connector::create($serverParams));
 
-        $serverResource->resize($server->server_id, $newPlanId);
+        $serverResource->resize($server->server_id, [
+            'plan_id' => $newPlanId,
+            'preserve_disk' => false,
+        ]);
     }
 }
