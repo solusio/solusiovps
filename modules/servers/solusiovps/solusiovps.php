@@ -12,6 +12,7 @@ use WHMCS\Module\Server\SolusIoVps\Helpers\Unit;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ServerCreateRequestBuilder;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ServerResizeRequestBuilder;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\UserRequestBuilder;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ApplicationResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\LimitGroupResource;
@@ -618,5 +619,29 @@ function solusiovps_syncAccount(array $params)
             'success' => false,
             'error' => $e->getMessage(),
         ];
+    }
+}
+
+function solusiovps_ChangePackage(array $params)
+{
+    try {
+        if ($_REQUEST['type'] !== 'configoptions') {
+            return 'success';
+        }
+
+        $server = SolusServer::getByServiceId((int)$params['serviceid']);
+        if ($server === null) {
+            return Language::trans('solusiovps_error_server_not_found');
+        }
+        $solusServerId = $server->server_id;
+        $serverResource = new ServerResource(Connector::create($params));
+
+        // Handle plan params
+        $requestBuilder = ServerResizeRequestBuilder::fromWHMCSUpgradeDowngradeParams($params);
+        $serverResource->resize($solusServerId, $requestBuilder->get());
+
+        return 'success';
+    } catch (Exception $e) {
+        return $e->getMessage();
     }
 }
