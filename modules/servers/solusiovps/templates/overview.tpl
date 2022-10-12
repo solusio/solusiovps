@@ -330,9 +330,10 @@ const statusUpdate = status => {
 
 const checkStatus = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/status.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "Status"
         }
     }).done(function (status) {
         $("#server-status").text(status);
@@ -345,27 +346,30 @@ const checkStatus = () => {
 
 const startServer = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/start.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "Start"
         }
     });
 }
 
 const stopServer = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/stop.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "Stop"
         }
     });
 }
 
 const restartServer = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/restart.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "Restart"
         }
     });
 }
@@ -444,13 +448,14 @@ const reinstallServer = () => {
 }
 
 const reinstallServerContinue = (osId, applicationId = 0, applicationData = null) => {
-    $.post({
-        url: 'modules/servers/solusiovps/pages/reinstall.php',
+    $.get({
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid},
+            id: {$serviceid},
+            a: "Reinstall",
             osId: osId,
             applicationId: applicationId,
-            applicationData: applicationData,
+            applicationData: applicationData
         }
     });
 }
@@ -478,7 +483,7 @@ const openVncDialog = () => {
     const height = 450;
     const top = (screen.height / 2) - (height / 2);
     const left = (screen.width / 2) - (width / 2);
-    const url = 'modules/servers/solusiovps/pages/vnc.php?serviceId={$serviceid}';
+    const url = 'clientarea.php?action=productdetails&id={$serviceid}&a=VNC';
     const features = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no,width=" + width + ",height=" + height + ",top=" + top + ",left=" + left;
 
     window.open(url, '', features);
@@ -486,12 +491,13 @@ const openVncDialog = () => {
 
 const resetPassword = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/reset-password.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "ResetRootPass"
         },
-        success: function () {
-            alert('{$LANG.solusiovps_password_reset_success}');
+        success: function (response) {
+            alert(response);
         }
     });
 }
@@ -508,12 +514,13 @@ const changeHostname = () => {
     }
 
     $.get({
-        url: 'modules/servers/solusiovps/pages/change-hostname.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid},
-            hostname: hostname
+            id: {$serviceid},
+            hostname: hostname,
+            a: "ChangeHostName"
         },
-        success: function (response) {
+        success: function(response) {
             domain = hostname;
 
             restartServer();
@@ -549,10 +556,11 @@ const setBootMode = mode => {
     }
 
     $.get({
-        url: 'modules/servers/solusiovps/pages/change-boot-mode.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid},
-            bootMode: mode
+            id: {$serviceid},
+            bootMode: mode,
+            a: "ChangeBootMode"
         }
     });
 
@@ -563,9 +571,10 @@ const setBootMode = mode => {
 
 const getBackups = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/get-backups.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "GetBackups"
         },
         dataType: 'json'
     }).done(function (backups) {
@@ -596,18 +605,20 @@ const getBackups = () => {
 
 const createBackup = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/create-backup.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "CreateBackup"
         }
     });
 }
 
 const restoreBackup = backupId => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/restore-backup.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid},
+            id: {$serviceid},
+            a: "RestoreBackup",
             backupId: backupId
         }
     });
@@ -615,9 +626,10 @@ const restoreBackup = backupId => {
 
 const getUsage = () => {
     $.get({
-        url: 'modules/servers/solusiovps/pages/usage.php',
+        url: 'clientarea.php?action=productdetails',
         data: {
-            serviceId: {$serviceid}
+            id: {$serviceid},
+            a: "Usage"
         },
         dataType: 'json'
     }).done(function (usage) {

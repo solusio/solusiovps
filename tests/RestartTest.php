@@ -46,7 +46,7 @@ class RestartTest extends AbstractModuleTest
 
         self::assertEquals(
             'success',
-            call_user_func(self::getModuleFunction('restart'), $this->params)
+            call_user_func(self::getModuleFunction('Restart'), $this->params)
         );
     }
 
@@ -56,7 +56,7 @@ class RestartTest extends AbstractModuleTest
 
         self::assertEquals(
             'bad request',
-            call_user_func(self::getModuleFunction('restart'), $this->params)
+            call_user_func(self::getModuleFunction('Restart'), $this->params)
         );
     }
 }
