@@ -5,7 +5,7 @@
 include_once(__DIR__ . DIRECTORY_SEPARATOR . '../../../vendor' . DIRECTORY_SEPARATOR . 'autoload.php');
 
 use Carbon\Carbon;
-use \GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\RequestException;
 use WHMCS\Module\Server\SolusIoVps\Exceptions\SolusException;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Unit;
@@ -23,6 +23,8 @@ use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ProjectResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\RoleResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\ServerResource;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\UserResource;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\BackupResource;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Resources\UsageResource;
 use WHMCS\Module\Server\SolusIoVps\Database\Migrations\Servers;
 use WHMCS\Module\Server\SolusIoVps\Database\Migrations\SshKeys;
 use WHMCS\Module\Server\SolusIoVps\Database\Models\Hosting;
@@ -36,6 +38,7 @@ use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Crypt;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Language;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\SshKey;
 use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\User;
+use WHMCS\Module\Server\SolusIoVps\WhmcsAPI\Product;
 use WHMCS\Service\Status;
 
 if (!defined('WHMCS')) {
@@ -412,6 +415,19 @@ function solusiovps_UnsuspendAccount(array $params): string
  */
 function solusiovps_ClientArea(array $params): array
 {
+    if (isset($_GET['a'])) {
+        $functionName = 'solusiovps_' . $_GET['a'];
+        if (function_exists($functionName)) {
+            $functionName($params);
+        } else {
+            $result = (object)array(
+                'success' => false,
+                'msg' => $functionName . ' not found',
+            );
+            exit(json_encode($result));
+        }
+    }
+
     try {
         solusiovps_syncAccount($params);
         $serverResource = new ServerResource(Connector::create($params));
@@ -528,24 +544,6 @@ function solusiovps_AdminCustomButtonArray(array $params): array
     ];
 }
 
-function solusiovps_restart(array $params)
-{
-    try {
-        $serviceId = (int)$params['serviceid'];
-        $hosting = Hosting::getByServiceId($serviceId);
-        $server = SolusServer::getByServiceId($serviceId);
-        $serverId = (int)$hosting->server;
-        $serverParams = Server::getParams($serverId);
-        $serverResource = new ServerResource(Connector::create($serverParams));
-
-        $serverResource->restart($server->server_id);
-
-        return 'success';
-    } catch (Exception $e) {
-        return $e->getMessage();
-    }
-}
-
 function solusiovps_ListAccounts(array $params)
 {
     try {
@@ -644,4 +642,354 @@ function solusiovps_ChangePackage(array $params)
     } catch (Exception $e) {
         return $e->getMessage();
     }
+}
+
+function solusiovps_ChangeHostName(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $hostname = $_GET['hostname'];
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+    try {
+        $serverResource->changeHostname($server->server_id, $hostname);
+        Product::updateDomain($serviceId, $hostname);
+
+        exit(Language::trans('solusiovps_hostname_changed'));
+    } catch (Exception $e) {
+        exit(Language::trans('solusiovps_error_change_hostname') . "\n" . 'Error: ' . $e->getMessage());
+    }
+}
+
+function solusiovps_ResetRootPass(array $params)
+{
+
+    $serviceId = (int) $params['serviceid'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $payload = json_decode($server->payload, true);
+    $solusUserId = (int) $payload['user']['id'];
+    $userResource = new UserResource(Connector::create($serverParams));
+    $userApiToken = $userResource->createToken($solusUserId);
+    $serverResource = new ServerResource(Connector::create($serverParams, $userApiToken));
+
+    $serverResource->resetPassword($server->server_id);
+    exit(Language::trans('solusiovps_password_reset_success'));
+}
+
+function solusiovps_ChangeBootMode(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $bootMode = $_GET['bootMode'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+    $serverResource->changeBootMode($server->server_id, $bootMode);
+}
+
+function solusiovps_CreateBackup(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $backupResource = new BackupResource(Connector::create($serverParams));
+
+    $backupResource->create($server->server_id);
+}
+
+function solusiovps_GetBackups(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $backupResource = new BackupResource(Connector::create($serverParams));
+    $response = $backupResource->getAll($server->server_id);
+    $backups = [];
+
+    if (isset($response['data']) && is_array($response['data'])) {
+        foreach ($response['data'] as $item) {
+            $progress = (int) $item['backup_progress'];
+            $status = $item['status'];
+
+            if ($progress > 0) {
+                $status .= " {$progress}%";
+            }
+
+            $time = new DateTimeImmutable($item['created_at']);
+
+            $backups[] = [
+                'id' => $item['id'],
+                'status' => $status,
+                'message' => $item['backup_fail_reason'] ?? '',
+                'time' => $time->format('Y-m-d H:i'),
+            ];
+        }
+    }
+    exit(json_encode($backups));
+}
+
+function solusiovps_RestoreBackup(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $backupId = (int) $_GET['backupId'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $backupResource = new BackupResource(Connector::create($serverParams));
+
+    $backupResource->restore($backupId);
+}
+
+
+function solusiovps_Reinstall(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $osId = (int) $_GET['osId'];
+    $applicationId = (int) $_GET['applicationId'];
+    $applicationData = $_GET['applicationData'] ?? [];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+
+    $serverResource->reinstall($server->server_id, $osId, $applicationId, $applicationData);
+}
+
+function solusiovps_Stop(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int)$hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+
+    $serverResource->stop($server->server_id);
+}
+
+function solusiovps_Start(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+
+    $serverResource->start($server->server_id);
+}
+
+function solusiovps_Restart(array $params)
+{
+    try {
+        $serviceId = (int) $params['serviceid'];
+        $hosting = Hosting::getByServiceId($serviceId);
+
+        $server = SolusServer::getByServiceId($serviceId);
+        $serverId = (int) $hosting->server;
+        $serverParams = Server::getParams($serverId);
+        $serverResource = new ServerResource(Connector::create($serverParams));
+
+        $serverResource->restart($server->server_id);
+
+        return 'success';
+    } catch (Exception $e) {
+        return $e->getMessage();
+    }
+}
+
+function solusiovps_Usage(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $payload = json_decode($server->payload, true);
+    $uuid = $payload['uuid'];
+
+    $usageResource = new UsageResource(Connector::create($serverParams));
+    $cpuUsage = $usageResource->cpu($uuid);
+    $networkUsage = $usageResource->network($uuid);
+    $diskUsage = $usageResource->disks($uuid);
+    $memoryUssage = $usageResource->memory($uuid);
+
+    $usage = [
+        'cpu' => [],
+        'network' => [],
+        'disk' => [],
+        'memory' => [],
+    ];
+
+    foreach ($cpuUsage['data']['items'] as $item) {
+        $usage['cpu'][] = [
+            'second' => date('H:i:s', strtotime($item['time'])),
+            'load_average' => $item['load_average'],
+        ];
+    }
+
+    foreach ($networkUsage['data']['items'] as $item) {
+        $usage['network'][] = [
+            'second' => date('H:i:s', strtotime($item['time'])),
+            'read_kb' => $item['derivative']['read_kb'],
+            'write_kb' => $item['derivative']['write_kb'],
+        ];
+    }
+
+    foreach ($diskUsage['data']['items'] as $item) {
+        $usage['disk'][] = [
+            'second' => date('H:i:s', strtotime($item['time'])),
+            'read_kb' => $item['derivative']['read_kb'],
+            'write_kb' => $item['derivative']['write_kb'],
+        ];
+    }
+
+    foreach ($memoryUssage['data']['items'] as $item) {
+        $usage['memory'][] = [
+            'second' => date('H:i:s', strtotime($item['time'])),
+            'memory' => $item['memory'],
+        ];
+    }
+
+    exit(json_encode($usage));
+}
+
+function solusiovps_VNC(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+
+    $hosting = Hosting::getByServiceId($serviceId);
+    $solusServer = SolusServer::getByServiceId($serviceId);
+    $serverId = (int)$hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+    $server = $serverResource->get($solusServer->server_id);
+    $password = $server['data']['settings']['vnc_password'] ?? $server['data']['settings']['vnc']['password'];
+    $response = $serverResource->vncUp($solusServer->server_id);
+    $url = 'wss://' . $serverParams['serverhostname'] . '/vnc?url=' . $response['url'];
+
+    ?>
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>VNC</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            body, html {
+                height: 100%;
+                min-height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+
+            #screen {
+                height: calc(100% - 60px);
+            }
+
+            .top-bar {
+                background: rgb(255, 255, 255);
+                display: flex;
+                align-items: center;
+                padding: 20px;
+                max-height: 20px;
+            }
+
+            .container {
+                height: inherit;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #ctrl-alt-del {
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                color: black;
+                text-decoration: none;
+            }
+        </style>
+        <script type="module" crossorigin="anonymous">
+            import RFB from '../modules/servers/solusiovps/node_modules/@novnc/novnc/core/rfb.js';
+
+            const url = <?= json_encode($url) ?>;
+            const password = <?= json_encode($password) ?>;
+            const options = {
+                credentials: {
+                    password: password
+                }
+            };
+
+            const rfb = new RFB(
+                document.getElementById('screen'),
+                url,
+                options
+            );
+
+            rfb.scaleViewport = true;
+            rfb.resizeSession = true;
+            rfb.focusOnClick = true;
+
+            document.querySelector('#ctrl-alt-del').addEventListener('click', () =>  {
+                rfb.sendCtrlAltDel();
+            });
+        </script>
+    </head>
+    <body>
+    <div class="container">
+        <div class="top-bar">
+            <a href="#" id="ctrl-alt-del">
+                Ctrl + Alt + Del
+            </a>
+        </div>
+        <div id="screen"></div>
+    </div>
+    </body>
+    </html>
+    <?php
+    exit();
+}
+
+function solusiovps_Status(array $params)
+{
+    $serviceId = (int) $params['serviceid'];
+    $hosting = Hosting::getByServiceId($serviceId);
+
+    $server = SolusServer::getByServiceId($serviceId);
+    $serverId = (int) $hosting->server;
+    $serverParams = Server::getParams($serverId);
+    $serverResource = new ServerResource(Connector::create($serverParams));
+    $serverResponse = $serverResource->get($server->server_id);
+
+    exit($serverResponse['data']['status']);
 }
