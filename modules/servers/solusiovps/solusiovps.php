@@ -11,6 +11,7 @@ use WHMCS\Module\Server\SolusIoVps\Helpers\Arr;
 use WHMCS\Module\Server\SolusIoVps\Helpers\Unit;
 use WHMCS\Module\Server\SolusIoVps\Logger\Logger;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Helpers\Strings;
+use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ConfigOptionExtractor;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ServerCreateRequestBuilder;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\ServerResizeRequestBuilder;
 use WHMCS\Module\Server\SolusIoVps\SolusAPI\Requests\UserRequestBuilder;
@@ -637,6 +638,37 @@ function solusiovps_ChangePackage(array $params)
         // Handle plan params
         $requestBuilder = ServerResizeRequestBuilder::fromWHMCSUpgradeDowngradeParams($params);
         $serverResource->resize($solusServerId, $requestBuilder->get());
+
+        // Handle additional IPs
+        $additionalIpCount = ConfigOptionExtractor::extractFromModuleParams($params, ProductConfigOption::EXTRA_IP_ADDRESS);
+
+        if ($additionalIpCount !== null) {
+            $additionalIpCount = (int)$additionalIpCount;
+            $solusServer = $serverResource->get($solusServerId);
+            $serverAdditionalIps = array_filter(Arr::get($solusServer, 'data.ip_addresses.ipv4'), function (array $ip) {
+                return $ip['is_primary'] === false;
+            });
+            $serverAdditionalIpCount = count($serverAdditionalIps);
+
+            if ($additionalIpCount > $serverAdditionalIpCount) {
+                $needIpCount = $additionalIpCount - $serverAdditionalIpCount;
+
+                $serverResource->createAdditionalIps($solusServerId, $needIpCount);
+            } elseif ($additionalIpCount < $serverAdditionalIpCount) {
+                // Remove IPs from the end
+                $reversedServerAdditionalIps = array_reverse($serverAdditionalIps);
+                $reversedServerAdditionalIpsForDelete = array_slice(
+                    $reversedServerAdditionalIps,
+                    0,
+                    $serverAdditionalIpCount - $additionalIpCount
+                );
+                $ipIdsForDelete = array_map(static function (array $additionalIp) {
+                    return $additionalIp['id'];
+                }, $reversedServerAdditionalIpsForDelete);
+
+                $serverResource->deleteAdditionalIps($solusServerId, $ipIdsForDelete);
+            }
+        }
 
         return 'success';
     } catch (Exception $e) {

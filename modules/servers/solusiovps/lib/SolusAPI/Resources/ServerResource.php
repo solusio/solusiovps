@@ -128,4 +128,22 @@ class ServerResource extends ApiResource
             ],
         ]));
     }
+
+    public function createAdditionalIps(int $id, int $count): array
+    {
+        return $this->processResponse($this->connector->post("servers/{$id}/ips", [
+            'json' => [
+                'count' => $count,
+            ],
+        ]));
+    }
+
+    public function deleteAdditionalIps(int $id, array $ipIds): array
+    {
+        return $this->processResponse($this->connector->delete("servers/{$id}/ips", [
+            'json' => [
+                'ids' => $ipIds,
+            ],
+        ]));
+    }
 }
