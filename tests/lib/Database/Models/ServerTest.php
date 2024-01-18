@@ -1,5 +1,5 @@
 <?php
-// Copyright 2021. Plesk International GmbH.
+// Copyright 1999-2024. WebPros International GmbH. All rights reserved.
 
 namespace Tests\lib\Database\Models;
 
