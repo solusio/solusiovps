@@ -1,5 +1,5 @@
 <?php
-// Copyright 2021. Plesk International GmbH.
+// Copyright 1999-2024. WebPros International GmbH. All rights reserved.
 
 // This is the bootstrap for PHPUnit testing.
 if (!defined('WHMCS')) {
